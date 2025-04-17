@@ -1,0 +1,33 @@
+:root {
+  /* Palette */
+  --bg-page: #f6f6ee;
+  --text-primary: #2c3e50;
+  --accent-donkey: #c76c11;
+  --card-bg: #ffffff;
+  --alert-bg: #fff8dc;
+  --alert-border: #ffd700;
+
+  /* Typography */
+  --fs-xxl: 2.5rem;
+  --fs-xl: 1.75rem;
+  --fs-lg: 1.25rem;
+  --fs-md: 1rem;
+  --fs-sm: 0.875rem;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+
+  /* Radius & Shadow */
+  --radius: 0.75rem;
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
