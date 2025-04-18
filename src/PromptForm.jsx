@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './PromptForm.css';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000';
 
 const PromptForm = ({ location }) => {
   const [prompt, setPrompt] = useState('');
@@ -15,7 +16,7 @@ const PromptForm = ({ location }) => {
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/prompt', {
+      const response = await fetch(`${BACKEND_URL}/prompt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
