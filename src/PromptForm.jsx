@@ -26,7 +26,10 @@ const PromptForm = ({ location }) => {
 
       const data = await response.json();
       console.log('🟢 Backend response:', data);
-
+      
+      if (data.parsed_prompt) {
+        console.log("🧠 Parsed Intent Data:", data.parsed_prompt);
+      }
       if (data && (data.summary || data.alerts_summary || data.severe_alerts)) {
         setResult(data);
       } else {
