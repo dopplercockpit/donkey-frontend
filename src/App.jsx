@@ -17,8 +17,11 @@ function App() {
     "I'm the reason you won’t need to look out the window.",
     "Weather so clear, you can stop watching the news.",
     "I'm like a cursed meteorological horcrux, but in the best possible way 🌦️💀",
+    "Give ‘em the storm before they ask for it.",
+    "I check the weather, before you ask.",
     "Voulez-vous un peu de pluie avec ça? Ce soir?",
     "Smarter than your phone, and way less toxic.",
+    "GPT-Powered Weather Alerts with Profanity",
   ];
   
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
