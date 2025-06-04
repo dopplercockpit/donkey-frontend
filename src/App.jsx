@@ -9,15 +9,15 @@ function App() {
   const donkeyTaglines = [
     "I check the sky so you don't have to read numbers.",
     "Helping you avoid soggy socks and nasty little sunburns.",
-    "Forecasts so accurate, you’ll think I'm dating Mother Nature.",
-    "Sun? Snow? Sleet? The Sky? I’ll tell you what’s falling, and when to run.",
-    "If you walk outside dressed wrong, it’s no longer your fault.",
+    "Forecasts so accurate, you'll think I'm dating Mother Nature.",
+    "Sun? Snow? Sleet? The Sky? I'll tell you what's falling, and when to run.",
+    "If you walk outside dressed wrong, it's no longer your fault.",
     "For people who hate guessing the weather... and wearing pants.",
     "Science, clouds, data, a jackass, and a whole lotta love.",
-    "I'm the reason you won’t need to look out the window.",
+    "I'm the reason you won't need to look out the window.",
     "Weather so clear, you can stop watching the news.",
     "I'm like a cursed meteorological horcrux, but in the best possible way 🌦️💀",
-    "Give ‘em the storm before they ask for it.",
+    "Give 'em the storm before they ask for it.",
     "I check the weather, before you ask.",
     "Voulez-vous un peu de pluie avec ça? Ce soir?",
     "Smarter than your phone, and way less toxic.",
@@ -29,36 +29,39 @@ function App() {
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
 
   useEffect(() => {
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        setLocation({ lat, lon });
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          setLocation({ lat, lon });
 
-        // 🔁 Call reverse geocode immediately
-        fetch("/geo/reverse", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lat, lon }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.city) {
-              setCityName(data.city);
-            } else {
-              console.warn("⚠️ Could not determine city");
-            }
-          });
-      },
-      (error) => {
-        console.warn("🛑 Geolocation error:", error);
-        setLocation(null);
-      }
-    );
-  }
-}, []);
-
+          // 🔁 Call reverse geocode immediately - FIXED: Use full API URL
+          const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+          fetch(`${baseURL}/geo/reverse`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lat, lon }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.city) {
+                setCityName(data.city);
+              } else {
+                console.warn("⚠️ Could not determine city");
+              }
+            })
+            .catch((error) => {
+              console.error("🛑 Reverse geocoding failed:", error);
+            });
+        },
+        (error) => {
+          console.warn("🛑 Geolocation error:", error);
+          setLocation(null);
+        }
+      );
+    }
+  }, []);
 
   // 💡 The actual render part
   return (
@@ -81,7 +84,6 @@ function App() {
               📍 Detected location: <strong>{cityName}</strong>
             </p>
           )}
-
 
           <PromptForm location={location} cityName={cityName} />
         </div>
