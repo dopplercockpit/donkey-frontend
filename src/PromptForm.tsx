@@ -4,9 +4,10 @@ import "./PromptForm.css";
 
 interface PromptFormProps {
   location?: { lat: number; lon: number } | null;
+  cityName?: string | null;  
 }
 
-const PromptForm: React.FC<PromptFormProps> = ({ location = null }) => {
+const PromptForm: React.FC<PromptFormProps> = ({ location = null, cityName = null }) => {
   const [input, setInput] = useState<string>("");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
@@ -62,12 +63,16 @@ const PromptForm: React.FC<PromptFormProps> = ({ location = null }) => {
           Send
         </button>
 
-        {latitude !== null && longitude !== null && !locationConfirmed && (
+        {!locationConfirmed && (latitude !== null && longitude !== null) && (
           <div className="location-info">
-            <span role="img" aria-label="compass">
-              🧭
-            </span>{" "}
-            Donkey thinks you're around ({latitude.toFixed(2)}, {longitude.toFixed(2)})
+            <span role="img" aria-label="compass">🧭</span>{" "}
+            Mister Donkey thinks you're around{" "}
+            {cityName ? (
+              <strong>{cityName}</strong>
+            ) : (
+              <span>({latitude.toFixed(2)}, {longitude.toFixed(2)})</span>
+            )}
+
             <button
               type="button"
               onClick={() => setLocationConfirmed(true)}

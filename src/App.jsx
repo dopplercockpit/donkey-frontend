@@ -83,7 +83,7 @@ function App() {
           )}
 
 
-          <PromptForm location={location} />
+          <PromptForm location={location} cityName={cityName} />
         </div>
 
         <footer className="footer">
