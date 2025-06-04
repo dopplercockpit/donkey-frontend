@@ -21,27 +21,44 @@ function App() {
     "I check the weather, before you ask.",
     "Voulez-vous un peu de pluie avec ça? Ce soir?",
     "Smarter than your phone, and way less toxic.",
-    "GPT-Powered Weather Alerts with Profanity",
+    "GPT-Powered Weather Alerts with a little profanity",
   ];
   
+  const [cityName, setCityName] = useState(null);
+
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
 
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        setLocation({ lat, lon });
+
+        // 🔁 Call reverse geocode immediately
+        fetch("/geo/reverse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lat, lon }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.city) {
+              setCityName(data.city);
+            } else {
+              console.warn("⚠️ Could not determine city");
+            }
           });
-        },
-        (error) => {
-          console.warn("Geolocation error:", error);
-          setLocation(null);
-        }
-      );
-    }
-  }, []);
+      },
+      (error) => {
+        console.warn("🛑 Geolocation error:", error);
+        setLocation(null);
+      }
+    );
+  }
+}, []);
+
 
   // 💡 The actual render part
   return (
@@ -59,6 +76,12 @@ function App() {
           />
           <h1 className="title">weather from a jackass ❄️☀️</h1>
           <p className="subtitle">{randomTagline}</p>
+          {cityName && (
+            <p className="subtitle">
+              📍 Detected location: <strong>{cityName}</strong>
+            </p>
+          )}
+
 
           <PromptForm location={location} />
         </div>
