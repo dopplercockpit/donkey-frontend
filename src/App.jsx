@@ -99,6 +99,9 @@ function App() {
             </p>
           )}
 
+          {/* Auto Weather Loader Component */}
+          <AutoWeatherLoader setAutoWeatherResult={setAutoWeatherResult} />
+
           {/* Auto Weather Display */}
           {showAutoWeather && autoWeatherResult && (
             <div className="auto-weather-card" style={{
@@ -135,9 +138,6 @@ function App() {
               </div>
             </div>
           )}
-
-          {/* Auto Weather Loader Component */}
-          <AutoWeatherLoader setAutoWeatherResult={setAutoWeatherResult} />
 
           {/* Regular Prompt Form */}
           <PromptForm location={location} cityName={cityName} />
