@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PromptForm from './PromptForm';
-import AutoWeatherLoader from './auto_loader'; // Import the auto loader
+import AutoWeatherLoader from './AutoWeatherLoader.jsx';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
 
