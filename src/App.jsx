@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PromptForm from './PromptForm';
+import AutoWeatherLoader from './auto_loader'; // Import the auto loader
 import './App.css';
-import donkeyLogo from './assets/mister_donkey_logo.png'; // You must place your logo image in src/assets and name it accordingly
+import donkeyLogo from './assets/mister_donkey_logo.png';
 
 function App() {
   const [location, setLocation] = useState(null);
+  const [autoWeatherResult, setAutoWeatherResult] = useState(null); // State for auto-loaded weather
+  const [showAutoWeather, setShowAutoWeather] = useState(false); // Control auto weather display
 
   const donkeyTaglines = [
     "I check the sky so you don't have to read numbers.",
@@ -36,7 +39,7 @@ function App() {
           const lon = position.coords.longitude;
           setLocation({ lat, lon });
 
-          // 🔁 Call reverse geocode immediately - FIXED: Use full API URL
+          // Reverse geocode to get city name
           const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
           fetch(`${baseURL}/geo/reverse`, {
             method: "POST",
@@ -63,7 +66,18 @@ function App() {
     }
   }, []);
 
-  // 💡 The actual render part
+  // Handle auto weather result
+  useEffect(() => {
+    if (autoWeatherResult) {
+      setShowAutoWeather(true);
+      // Auto-hide after 10 seconds (optional)
+      const timer = setTimeout(() => {
+        setShowAutoWeather(false);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoWeatherResult]);
+
   return (
     <div className="page-wrapper">
       <div className="sidebar ad-left">
@@ -85,6 +99,47 @@ function App() {
             </p>
           )}
 
+          {/* Auto Weather Display */}
+          {showAutoWeather && autoWeatherResult && (
+            <div className="auto-weather-card" style={{
+              backgroundColor: '#f0f8ff',
+              border: '2px solid #4a90e2',
+              borderRadius: '8px',
+              padding: '1rem',
+              margin: '1rem 0',
+              position: 'relative'
+            }}>
+              <button 
+                onClick={() => setShowAutoWeather(false)}
+                style={{
+                  position: 'absolute',
+                  top: '0.5rem',
+                  right: '0.5rem',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.2rem',
+                  cursor: 'pointer'
+                }}
+              >
+                ×
+              </button>
+              <h3 style={{ margin: '0 0 0.5rem 0', color: '#2c3e50' }}>
+                🐴 Mister Donkey's Auto-Sniff Report
+              </h3>
+              <div className="auto-weather-content" style={{ 
+                textAlign: 'left',
+                fontSize: '0.9rem',
+                lineHeight: '1.4'
+              }}>
+                {autoWeatherResult.summary || autoWeatherResult.text || 'Weather data loaded!'}
+              </div>
+            </div>
+          )}
+
+          {/* Auto Weather Loader Component */}
+          <AutoWeatherLoader setAutoWeatherResult={setAutoWeatherResult} />
+
+          {/* Regular Prompt Form */}
           <PromptForm location={location} cityName={cityName} />
         </div>
 
