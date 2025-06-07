@@ -7,7 +7,7 @@ import donkeyLogo from './assets/mister_donkey_logo.png';
 function App() {
   const [location, setLocation] = useState(null);
   const [autoWeatherResult, setAutoWeatherResult] = useState(null); // State for auto-loaded weather
-  const [showAutoWeather, setShowAutoWeather] = useState(false); // Control auto weather display
+  const [showAutoWeather, setShowAutoWeather] = useState(true); // Control auto weather display
 
   const donkeyTaglines = [
     "I check the sky so you don't have to read numbers.",
