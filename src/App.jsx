@@ -67,16 +67,16 @@ function App() {
   }, []);
 
   // Handle auto weather result
-  useEffect(() => {
-    if (autoWeatherResult) {
-      setShowAutoWeather(true);
+  // useEffect(() => {
+  //  if (autoWeatherResult) {
+  //    setShowAutoWeather(true);
       // Auto-hide after 10 seconds (optional)
-      const timer = setTimeout(() => {
-        setShowAutoWeather(false);
-      }, 10000);
-      return () => clearTimeout(timer);
-    }
-  }, [autoWeatherResult]);
+  //    const timer = setTimeout(() => {
+  //      setShowAutoWeather(false);
+  //    }, 10000);
+  //    return () => clearTimeout(timer);
+  //  }
+  //}, [autoWeatherResult]);
 
   return (
     <div className="page-wrapper">
