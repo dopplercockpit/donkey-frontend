@@ -89,7 +89,8 @@ function App() {
           <img
             src={donkeyLogo}
             alt="Mister Donkey Logo"
-            style={{ maxWidth: '200px', marginBottom: '1rem' }}
+            // style={{ maxWidth: '200px', marginBottom: '1rem' }}
+            className="logo"
           />
           <h1 className="title">weather from a jackass ❄️☀️</h1>
           <p className="subtitle">{randomTagline}</p>
