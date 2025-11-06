@@ -31,6 +31,19 @@ function App() {
 
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
 
+  const loadingMessages = [
+  "🌪️ Consulting the weather gods...",
+  "☁️ Counting the clouds...",
+  "🌡️ Measuring the vibes...",
+  "🐴 Mister Donkey is thinking...",
+  "⚡ Analyzing atmospheric chaos..."
+  ];
+
+  function showRandomLoading() {
+    const msg = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    showMessage(msg);
+  }
+
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
