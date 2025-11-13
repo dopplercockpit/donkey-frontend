@@ -387,7 +387,7 @@
     <header>
         <div class="logo-container">
             <!-- Replace with your actual logo path -->
-            <img src="mister-donkey-logo.png" alt="Mister Donkey" onerror="this.style.display='none'">
+            <img src="./src/assets/mister_donkey_logo.png" alt="Mister Donkey" onerror="this.style.display='none'">
         </div>
         <h1>MISTER DONKEY</h1>
         <div class="tagline">weather from a jackass ❄️☀️</div>
@@ -523,6 +523,8 @@
                         lon: position.coords.longitude
                     };
 
+                    console.log("📍 Browser geolocation:", currentLocation);
+
                     // Reverse geocode to get city name
                     const response = await fetch(`${API_BASE_URL}/geo/reverse`, {
                         method: 'POST',
@@ -597,6 +599,13 @@
                 });
 
                 const data = await response.json();
+
+                console.log("🛰️ Backend /prompt response raw:", data);
+                console.log("🧭 Backend-reported location:", {
+                    location: data.location,
+                    diagnostics: data.diagnostics,
+                    city_resolver_debug: data.city_resolver_debug
+                });
 
                 removeLoading();
 
