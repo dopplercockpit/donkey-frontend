@@ -31,7 +31,7 @@ const ToneSelector = ({ selectedTone, onToneChange }) => {
 
   return (
     <div className="tone-selector">
-      <label className="tone-label">Choose your Donkey:</label>
+      <label className="tone-label">Choose your donkey:</label>
       <div className="tone-dropdown-wrapper">
         <button
           type="button"
