@@ -1,10 +1,11 @@
 // PromptForm.tsx
 import React, { useState, useEffect } from "react";
 import "./PromptForm.css";
+import ToneSelector from "./ToneSelector";
 
 interface PromptFormProps {
   location?: { lat: number; lon: number } | null;
-  cityName?: string | null;  
+  cityName?: string | null;
 }
 
 const PromptForm: React.FC<PromptFormProps> = ({ location = null, cityName = null }) => {
@@ -13,6 +14,7 @@ const PromptForm: React.FC<PromptFormProps> = ({ location = null, cityName = nul
   const [longitude, setLongitude] = useState<number | null>(null);
   const [response, setResponse] = useState<string>("");
   const [locationConfirmed, setLocationConfirmed] = useState<boolean>(false);
+  const [selectedTone, setSelectedTone] = useState<string>("sarcastic");
 
   // Whenever the parent (App.jsx) passes a new `location` prop, update local lat/lon
   useEffect(() => {
@@ -25,7 +27,10 @@ const PromptForm: React.FC<PromptFormProps> = ({ location = null, cityName = nul
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const payload: Record<string, any> = { prompt: input.trim() };
+    const payload: Record<string, any> = {
+      prompt: input.trim(),
+      tone: selectedTone
+    };
     if (latitude !== null && longitude !== null) {
       payload.location = { lat: latitude, lon: longitude };
     }
@@ -51,6 +56,7 @@ const PromptForm: React.FC<PromptFormProps> = ({ location = null, cityName = nul
 
   return (
     <div className="prompt-wrapper">
+      <ToneSelector selectedTone={selectedTone} onToneChange={setSelectedTone} />
       <form onSubmit={handleSubmit} className="prompt-form">
         <input
           type="text"
