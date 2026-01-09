@@ -561,7 +561,8 @@
 
                 const data = await response.json();
                 currentSessionId = data.session_id;
-                document.getElementById('sessionId').textContent = currentSessionId.split('_')[1].substring(0, 8);
+                // Display the full session ID (DDMMYYXX format)
+                document.getElementById('sessionId').textContent = currentSessionId;
                 console.log('Session created:', currentSessionId);
             } catch (error) {
                 console.error('Failed to create session:', error);
