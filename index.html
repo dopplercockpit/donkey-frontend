@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mister Donkey - Weather from a Jackass ❄️☀️</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <style>
         * {
             margin: 0;
@@ -546,12 +547,14 @@
 
         // Create new conversation session
         async function createNewSession() {
+            const backendLocation = currentLocation ? { lat: currentLocation.lat, lon: currentLocation.lon } : null;
             try {
                 const response = await fetch(`${API_BASE_URL}/conversation/new`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        location: currentLocation,
+                        location: backendLocation,
+                        // REMOVED: location: currentLocation,
                         tone: currentTone
                     })
                 });
@@ -571,6 +574,9 @@
             const message = input.value.trim();
 
             if (!message) return;
+
+            const backendLocation = currentLocation ? { lat: currentLocation.lat, lon: currentLocation.lon } : null;
+            console.log("📦 Sending location payload to backend:", backendLocation);
 
             // Disable input
             input.disabled = true;
@@ -592,7 +598,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         prompt: message,
-                        location: currentLocation,
+                        location: backendLocation,
+                        // REMOVED: location: currentLocation,
                         tone: currentTone,
                         session_id: currentSessionId
                     })
