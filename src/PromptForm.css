@@ -1,10 +1,25 @@
 /* PromptForm.css */
 
 .prompt-wrapper {
-  padding: var(--space-lg);
-  max-width: 600px;
+  padding: var(--space-lg) var(--space-md);
+  max-width: 640px;
   margin: 0 auto;
 }
+
+/* === Location badge === */
+
+.location-badge {
+  display: inline-block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 0.2rem 0.75rem;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+/* === Form === */
 
 .prompt-form {
   display: flex;
@@ -13,49 +28,98 @@
 
 .prompt-input {
   flex: 1;
-  padding: var(--space-sm);
-  border: 2px solid var(--text-primary);
+  padding: 0.65rem var(--space-md);
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
   border-radius: var(--radius);
   font-size: var(--fs-md);
-  box-shadow: var(--shadow-sm);
-  transition: border-color 0.25s;
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+.prompt-input::placeholder {
+  color: var(--text-muted);
 }
 .prompt-input:focus {
   outline: none;
-  border-color: var(--accent-donkey);
+  border-color: var(--accent-primary);
+}
+.prompt-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .prompt-button {
-  padding: var(--space-sm) var(--space-md);
-  background: var(--card-bg);
+  padding: 0.65rem var(--space-lg);
+  background: var(--accent-primary);
+  color: #fff;
   border: none;
   border-radius: var(--radius);
   font-size: var(--fs-md);
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.1s, box-shadow 0.2s;
+  transition: opacity 0.15s, transform 0.1s;
 }
-.prompt-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+.prompt-button:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+.prompt-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.result-card {
+/* === Error banner === */
+
+.error-banner {
   margin-top: var(--space-md);
-  background: var(--card-bg);
-  padding: var(--space-md);
+  background: rgba(232, 90, 74, 0.1);
+  border: 1px solid #e85a4a;
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  font-size: var(--fs-md);
+  padding: var(--space-sm) var(--space-md);
+  color: #f08070;
+  font-size: var(--fs-sm);
   line-height: 1.5;
-  white-space: pre-wrap;
+  text-align: left;
 }
 
-/* Unified alert box style */
+/* === Weather response === */
+
+.weather-response {
+  margin-top: var(--space-lg);
+  text-align: left;
+}
+
+.response-location {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-sm);
+}
+
+.response-summary {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-card);
+}
+
+.summary-para {
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+  line-height: 1.7;
+  margin: 0 0 0.75rem;
+}
+.summary-para:last-child {
+  margin-bottom: 0;
+}
+
+/* === Legacy alert box (kept for backward compat) === */
+
 .alert-box {
   margin-top: var(--space-md);
   background: var(--alert-bg);
-  border-left: 6px solid var(--alert-border);
+  border-left: 4px solid var(--alert-border);
   padding: var(--space-md);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -65,21 +129,11 @@
 }
 .alert-summary {
   font-weight: 600;
-  display: flex;
-  gap: var(--space-xs);
-  align-items: center;
-}
-.alert-item {
-  padding-left: var(--space-sm);
-  position: relative;
-}
-.alert-item::before {
-  content: '⚠️🚨';
-  position: absolute;
-  left: 0;
+  color: var(--text-primary);
 }
 
-/* Mobile responsiveness */
+/* === Mobile === */
+
 @media (max-width: 600px) {
   .prompt-form {
     flex-direction: column;

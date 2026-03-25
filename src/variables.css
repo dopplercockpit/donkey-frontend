@@ -1,33 +1,48 @@
 :root {
-  /* Palette */
-  --bg-page: #f6f6ee;
-  --text-primary: #2c3e50;
-  --accent-donkey: #c76c11;
-  --card-bg: #ffffff;
-  --alert-bg: #fff8dc;
-  --alert-border: #ffd700;
+  /* === Backgrounds === */
+  --bg-primary: #1a1e24;
+  --bg-secondary: #252b33;
+  --bg-card: #2d3540;
+  --bg-surface: #333c47;
 
-  /* Typography */
+  /* === Accent colors === */
+  --accent-primary: #e8834a;      /* warm amber/orange — donkey brand */
+  --accent-secondary: #4a90e2;    /* cool blue — weather indicators */
+  --accent-donkey: #e8834a;       /* alias kept for legacy CSS references */
+
+  /* === Text === */
+  --text-primary: #f0f2f5;
+  --text-secondary: #a8b3be;
+  --text-muted: #6b7a8d;
+
+  /* === Borders === */
+  --border-color: #3a4553;
+
+  /* === Typography === */
   --fs-xxl: 2.5rem;
   --fs-xl: 1.75rem;
-  --fs-lg: 1.25rem;
+  --fs-lg: 1.125rem;
   --fs-md: 1rem;
   --fs-sm: 0.875rem;
 
-  /* Spacing */
-  --space-xs: 0.5rem;
-  --space-sm: 1rem;
-  --space-md: 1.5rem;
-  --space-lg: 2rem;
+  /* === Spacing === */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
 
-  /* Radius & Shadow */
-  --radius: 0.75rem;
-  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+  /* === Radius === */
+  --radius: 10px;
+  --radius-lg: 16px;
 
-body {
-  background: var(--bg-page);
-  color: var(--text-primary);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  /* === Shadows === */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.4);
+
+  /* === Legacy aliases (for card-bg, alert-bg) === */
+  --card-bg: #2d3540;
+  --alert-bg: rgba(232, 131, 74, 0.1);
+  --alert-border: var(--accent-primary);
 }

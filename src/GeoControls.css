@@ -1,0 +1,62 @@
+.geo-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0 var(--space-md);
+  font-size: var(--fs-sm);
+}
+
+.geo-city {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.geo-status {
+  color: var(--text-muted);
+}
+
+.geo-status--denied,
+.geo-status--error {
+  color: #e85a4a;
+}
+
+.geo-status--requesting {
+  color: var(--accent-secondary);
+}
+
+.geo-actions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.geo-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--fs-sm);
+  padding: 0.25rem 0.65rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.geo-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.geo-btn--retry {
+  border-color: #e85a4a;
+  color: #e85a4a;
+}
+
+.geo-btn--retry:hover {
+  background: rgba(232, 90, 74, 0.1);
+}
+
+.geo-btn--off {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
