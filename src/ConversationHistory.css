@@ -1,0 +1,158 @@
+/* ConversationHistory.css */
+
+.conv-root {
+  margin: var(--space-md) 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+/* === Header === */
+
+.conv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem var(--space-md);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.conv-title {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+}
+
+.conv-clear-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius);
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  line-height: 1.4;
+}
+
+.conv-clear-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  background: var(--bg-surface);
+}
+
+/* === Scrollable message list === */
+
+.conv-scroll {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: var(--space-md) var(--space-md) var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+
+  /* Thin scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.conv-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.conv-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+/* === Message rows === */
+
+.conv-row {
+  display: flex;
+}
+
+.conv-row--user {
+  justify-content: flex-end;
+}
+
+.conv-row--assistant {
+  justify-content: flex-start;
+}
+
+/* === Bubbles === */
+
+.conv-bubble {
+  max-width: 78%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  word-break: break-word;
+}
+
+.conv-bubble--user {
+  background: var(--accent-primary);
+  /* Flatten the bottom-right corner to signal "sent" */
+  border-bottom-right-radius: 3px;
+}
+
+.conv-bubble--assistant {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  /* Flatten the bottom-left corner to signal "received" */
+  border-bottom-left-radius: 3px;
+}
+
+/* === Bubble content === */
+
+.conv-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.conv-para {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.conv-bubble--user .conv-para {
+  color: #fff;
+}
+
+.conv-bubble--assistant .conv-para {
+  color: var(--text-secondary);
+}
+
+/* === Timestamps === */
+
+.conv-ts {
+  font-size: 0.68rem;
+  line-height: 1;
+  align-self: flex-end;
+}
+
+.conv-bubble--user .conv-ts {
+  color: rgba(255, 255, 255, 0.60);
+}
+
+.conv-bubble--assistant .conv-ts {
+  color: var(--text-muted);
+}
+
+/* === Mobile === */
+
+@media (max-width: 600px) {
+  .conv-bubble {
+    max-width: 90%;
+  }
+
+  .conv-scroll {
+    max-height: 300px;
+  }
+}

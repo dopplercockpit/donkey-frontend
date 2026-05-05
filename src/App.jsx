@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PromptForm from './PromptForm';
 import GeoControls from './GeoControls';
 import SupportCard from './SupportCard';
+import ConversationHistory from './ConversationHistory';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
 
@@ -42,6 +43,21 @@ function App() {
   const [autoWeatherResult, setAutoWeatherResult] = useState(null);
   const [autoWeatherLoading, setAutoWeatherLoading] = useState(false);
   const [showAutoWeather, setShowAutoWeather] = useState(true);
+
+  // PromptForm loading signal — lifted here only to drive the logo animation
+  const [promptLoading, setPromptLoading] = useState(false);
+
+  // Conversation history — populated by explicit user prompts only (not auto-load)
+  const [conversationHistory, setConversationHistory] = useState([]);
+
+  const handleConversationTurn = useCallback((userText, assistantText) => {
+    const now = Date.now();
+    setConversationHistory(prev => [
+      ...prev,
+      { role: "user",      content: userText,     timestamp: now },
+      { role: "assistant", content: assistantText, timestamp: now },
+    ]);
+  }, []);
 
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
 
@@ -167,7 +183,7 @@ function App() {
           <img
             src={donkeyLogo}
             alt="Mister Donkey Logo"
-            className="logo"
+            className={`logo${(autoWeatherLoading || promptLoading) ? ' loading' : ''}`}
           />
           <h1 className="title">weather from a jackass ❄️☀️</h1>
           <p className="subtitle">{randomTagline}</p>
@@ -206,6 +222,11 @@ function App() {
             </div>
           )}
 
+          <ConversationHistory
+            messages={conversationHistory}
+            onClear={() => setConversationHistory([])}
+          />
+
           <PromptForm
             location={location}
             cityName={cityName}
@@ -213,6 +234,8 @@ function App() {
             setSelectedTone={setSelectedTone}
             sessionId={sessionId}
             onWeatherResult={setAutoWeatherResult}
+            onConversationTurn={handleConversationTurn}
+            onLoadingChange={setPromptLoading}
           />
         </div>
 

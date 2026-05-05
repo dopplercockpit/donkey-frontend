@@ -19,6 +19,48 @@
   margin-bottom: var(--space-sm);
 }
 
+/* === Quick-action chips === */
+
+.chips-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: var(--space-sm);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;        /* Firefox */
+  padding-bottom: 3px;          /* prevent box-shadow clip on scroll */
+}
+
+.chips-row::-webkit-scrollbar {
+  display: none;                /* Chrome/Safari */
+}
+
+.chip {
+  flex-shrink: 0;
+  padding: 0.28rem 0.7rem;
+  background: transparent;
+  color: var(--accent-primary);
+  border: 1.5px solid var(--accent-primary);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  line-height: 1.4;
+}
+
+.chip:hover:not(:disabled) {
+  background: var(--accent-primary);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.chip:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 /* === Form === */
 
 .prompt-form {

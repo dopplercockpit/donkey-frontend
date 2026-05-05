@@ -1,0 +1,228 @@
+/* VitaminDCard.css */
+
+.vitd-card {
+  margin-top: var(--space-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+}
+
+/* === Header === */
+
+.vitd-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.vitd-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vitd-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* === Skin type picker === */
+
+.vitd-picker-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-sm);
+}
+
+.vitd-picker-label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.vitd-swatches {
+  display: flex;
+  gap: 5px;
+}
+
+.vitd-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  font-size: 0.62rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  /* text-shadow for light swatches is set per-swatch via inline color */
+  line-height: 1;
+}
+
+.vitd-swatch:hover {
+  transform: scale(1.12);
+}
+
+.vitd-swatch--active {
+  border-color: var(--accent-primary);
+  transform: scale(1.18);
+  box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--accent-primary);
+}
+
+.vitd-skin-name {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+/* === Button === */
+
+.vitd-btn {
+  margin-top: var(--space-sm);
+  width: 100%;
+  padding: 0.6rem var(--space-md);
+  background: #d4941f;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.01em;
+}
+
+.vitd-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.vitd-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* === Status messages === */
+
+.vitd-notice,
+.vitd-error {
+  margin-top: var(--space-sm);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.vitd-error {
+  color: #f08070;
+}
+
+/* === Result === */
+
+.vitd-result {
+  margin-top: var(--space-md);
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--space-md);
+}
+
+.vitd-index-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-bottom: var(--space-sm);
+}
+
+.vitd-index-value {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: color 0.3s;
+}
+
+.vitd-index-denom {
+  font-size: var(--fs-md);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.vitd-index-label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  align-self: center;
+}
+
+.vitd-recommendation {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0 0 var(--space-md);
+}
+
+/* === Stats grid === */
+
+.vitd-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.vitd-stat {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--space-sm) 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.vitd-stat-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.vitd-stat-value {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.vitd-stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+.vitd-skin-used {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* === Mobile === */
+
+@media (max-width: 600px) {
+  .vitd-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vitd-picker-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
