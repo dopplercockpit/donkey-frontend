@@ -615,12 +615,16 @@
                     city_resolver_debug: data.city_resolver_debug
                 });
 
+                if (!data.text_summary && !data.summary) {
+                    console.warn('⚠️ Response missing both text_summary and summary fields:', Object.keys(data));
+                }
+
                 removeLoading();
 
                 if (data.error) {
                     addMessage('assistant', `❌ ${data.error}`);
                 } else {
-                    const weatherSummary = data.summary || 'No summary available';
+                    const weatherSummary = data.text_summary || data.summary || 'No summary available';
                     addMessage('assistant', weatherSummary, {
                         location: data.location,
                         tone: data.tone
