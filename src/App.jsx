@@ -230,6 +230,8 @@ function App() {
           auto: true,
         }),
       });
+      const reqId = res.headers.get("X-Request-ID");
+      if (reqId) console.log(`🔑 [${reqId}] auto-weather response received`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);

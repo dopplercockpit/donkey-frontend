@@ -606,6 +606,9 @@
                     })
                 });
 
+                const reqId = response.headers.get('X-Request-ID');
+                if (reqId) console.log(`🔑 [${reqId}] /prompt response received`);
+
                 const data = await response.json();
 
                 console.log("🛰️ Backend /prompt response raw:", data);
@@ -622,7 +625,8 @@
                 removeLoading();
 
                 if (data.error) {
-                    addMessage('assistant', `❌ ${data.error}`);
+                    const idNote = data.request_id ? ` (ID: ${data.request_id.slice(0, 8)})` : '';
+                    addMessage('assistant', `❌ ${data.error}${idNote}`);
                 } else {
                     const weatherSummary = data.text_summary || data.summary || 'No summary available';
                     addMessage('assistant', weatherSummary, {

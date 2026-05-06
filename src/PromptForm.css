@@ -124,6 +124,13 @@
   text-align: left;
 }
 
+.error-req-id {
+  opacity: 0.55;
+  font-size: 0.78em;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
 /* === Weather response === */
 
 .weather-response {

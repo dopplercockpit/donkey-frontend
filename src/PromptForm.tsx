@@ -56,6 +56,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
   const [input, setInput] = useState<string>("");
   const [weatherResult, setWeatherResult] = useState<any | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorReqId, setErrorReqId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const submitPrompt = async (text: string) => {
@@ -64,6 +65,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
     setLoading(true);
     onLoadingChange?.(true);
     setErrorMessage("");
+    setErrorReqId(null);
     setWeatherResult(null);
 
     const payload: Record<string, any> = {
@@ -79,8 +81,14 @@ const PromptForm: React.FC<PromptFormProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      const reqId = res.headers.get("X-Request-ID");
+      if (reqId) console.log(`🔑 [${reqId}] /prompt/structured response received`);
       const data = await res.json();
-      if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+      if (!res.ok || data.error) {
+        const rid = reqId ?? data.request_id ?? null;
+        if (rid) setErrorReqId(rid);
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
       setWeatherResult(data);
       if (onWeatherResult) onWeatherResult(data);
       onConversationTurn?.(text.trim(), data.text_summary || data.summary || "");
@@ -146,6 +154,9 @@ const PromptForm: React.FC<PromptFormProps> = ({
       {errorMessage && (
         <div className="error-banner" role="alert">
           ⚠️ {errorMessage}
+          {errorReqId && (
+            <span className="error-req-id"> · ID: {errorReqId.slice(0, 8)}</span>
+          )}
         </div>
       )}
 
