@@ -8,6 +8,83 @@ import donkeyLogo from './assets/mister_donkey_logo.png';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+// WeatherAPI condition codes: https://www.weatherapi.com/docs/weather_conditions.json
+const WEATHER_THEMES = {
+  // Clear / sunny
+  1000: { '--accent-primary': '#e8870a', '--bg-secondary': '#2a2518' },
+  // Partly cloudy
+  1003: { '--accent-primary': '#c8903a', '--bg-secondary': '#252b33' },
+  // Cloudy / overcast
+  1006: { '--accent-primary': '#7a8a9a', '--bg-secondary': '#252b33' },
+  1009: { '--accent-primary': '#7a8a9a', '--bg-secondary': '#252b33' },
+  // Mist / fog
+  1030: { '--accent-primary': '#8a9aaa', '--bg-secondary': '#252b33' },
+  1135: { '--accent-primary': '#8a9aaa', '--bg-secondary': '#252b33' },
+  1147: { '--accent-primary': '#8a9aaa', '--bg-secondary': '#252b33' },
+  // Rain (drizzle, light, moderate, heavy)
+  1063: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1072: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1150: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1153: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1168: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1171: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1180: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1183: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1186: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1189: { '--accent-primary': '#5a7a8a', '--bg-secondary': '#1e2830' },
+  1192: { '--accent-primary': '#4a6a7a', '--bg-secondary': '#1a2428' },
+  1195: { '--accent-primary': '#4a6a7a', '--bg-secondary': '#1a2428' },
+  1198: { '--accent-primary': '#4a6a7a', '--bg-secondary': '#1a2428' },
+  1201: { '--accent-primary': '#4a6a7a', '--bg-secondary': '#1a2428' },
+  // Snow
+  1066: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1069: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1114: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1117: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1204: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1207: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1210: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1213: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1216: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1219: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1222: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1225: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1237: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1249: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1252: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1255: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1258: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1261: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  1264: { '--accent-primary': '#4a9eda', '--bg-secondary': '#1e2838' },
+  // Thunderstorm
+  1087: { '--accent-primary': '#4a4a7a', '--bg-secondary': '#18181e' },
+  1273: { '--accent-primary': '#4a4a7a', '--bg-secondary': '#18181e' },
+  1276: { '--accent-primary': '#4a4a7a', '--bg-secondary': '#18181e' },
+  1279: { '--accent-primary': '#4a4a7a', '--bg-secondary': '#18181e' },
+  1282: { '--accent-primary': '#4a4a7a', '--bg-secondary': '#18181e' },
+};
+
+const DEFAULT_THEME = {
+  '--accent-primary': '#e8834a',
+  '--bg-secondary': '#252b33',
+};
+
+const HEAT_THEME = {
+  '--accent-primary': '#d44a1a',
+  '--bg-secondary': '#2a1a14',
+};
+
+function applyWeatherTheme(data) {
+  const root = document.documentElement;
+  const current = data?.weather?.current;
+  const theme =
+    current?.temp_c > 35
+      ? HEAT_THEME
+      : WEATHER_THEMES[current?.condition_code] ?? DEFAULT_THEME;
+
+  Object.entries(theme).forEach(([prop, val]) => root.style.setProperty(prop, val));
+}
+
 const donkeyTaglines = [
   "I check the sky so you don't have to read numbers.",
   "Helping you avoid soggy socks and nasty little sunburns.",
@@ -49,6 +126,16 @@ function App() {
 
   // Conversation history — populated by explicit user prompts only (not auto-load)
   const [conversationHistory, setConversationHistory] = useState([]);
+
+  // Apply weather theme whenever auto-weather result changes
+  useEffect(() => {
+    if (autoWeatherResult) {
+      applyWeatherTheme(autoWeatherResult);
+    } else {
+      const root = document.documentElement;
+      Object.entries(DEFAULT_THEME).forEach(([prop, val]) => root.style.setProperty(prop, val));
+    }
+  }, [autoWeatherResult]);
 
   const handleConversationTurn = useCallback((userText, assistantText) => {
     const now = Date.now();

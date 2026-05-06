@@ -1,4 +1,29 @@
+/*
+ * Typed custom property declarations — required for CSS transitions on
+ * custom properties to work (CSS Houdini @property, Chrome 85+/FF 116+).
+ * In unsupported browsers the theme swap still happens, just instantly.
+ */
+@property --accent-primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e8834a;
+}
+
+@property --bg-secondary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #252b33;
+}
+
 :root {
+  /* Theme transitions — animate both the typed custom props and any
+     direct color/background-color set on :root itself.              */
+  transition:
+    --accent-primary   1s ease,
+    --bg-secondary     1s ease,
+    color              1s ease,
+    background-color   1s ease;
+
   /* === Backgrounds === */
   --bg-primary: #1a1e24;
   --bg-secondary: #252b33;
