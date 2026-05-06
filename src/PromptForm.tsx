@@ -55,6 +55,8 @@ const PromptForm: React.FC<PromptFormProps> = ({
 }) => {
   const [input, setInput] = useState<string>("");
   const [weatherResult, setWeatherResult] = useState<any | null>(null);
+  const [streamText, setStreamText] = useState<string>("");
+  const [streaming, setStreaming] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errorReqId, setErrorReqId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -63,6 +65,8 @@ const PromptForm: React.FC<PromptFormProps> = ({
     if (!text.trim()) return;
 
     setLoading(true);
+    setStreaming(true);
+    setStreamText("");
     onLoadingChange?.(true);
     setErrorMessage("");
     setErrorReqId(null);
@@ -76,25 +80,65 @@ const PromptForm: React.FC<PromptFormProps> = ({
     if (sessionId) payload.session_id = sessionId;
 
     try {
-      const res = await fetch(`${BASE_URL}/prompt/structured`, {
+      const res = await fetch(`${BASE_URL}/prompt/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
       const reqId = res.headers.get("X-Request-ID");
-      if (reqId) console.log(`🔑 [${reqId}] /prompt/structured response received`);
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        const rid = reqId ?? data.request_id ?? null;
-        if (rid) setErrorReqId(rid);
-        throw new Error(data.error || `HTTP ${res.status}`);
+      if (reqId) console.log(`🔑 [${reqId}] /prompt/stream connected`);
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        const apiErr = { error: errData.error || `HTTP ${res.status}`, code: errData.code, request_id: reqId ?? errData.request_id };
+        if (apiErr.request_id) setErrorReqId(apiErr.request_id);
+        throw apiErr;
       }
-      setWeatherResult(data);
-      if (onWeatherResult) onWeatherResult(data);
-      onConversationTurn?.(text.trim(), data.text_summary || data.summary || "");
+
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const token = line.slice(6);
+            if (token === "[DONE]") {
+              // Stream finished — promote to weatherResult
+              const synth = { text_summary: accumulated, summary: accumulated };
+              setWeatherResult(synth);
+              if (onWeatherResult) onWeatherResult(synth);
+              onConversationTurn?.(text.trim(), accumulated);
+              setStreaming(false);
+            } else {
+              const unescaped = token.replace(/\\n/g, "\n");
+              accumulated += unescaped;
+              setStreamText(accumulated);
+            }
+          } else if (line.startsWith("event: error")) {
+            // next data line will have the error JSON — handled next iteration
+          } else if (line.startsWith("data: ") === false && line.includes('"error"')) {
+            try {
+              const errObj = JSON.parse(line.replace(/^data:\s*/, ""));
+              throw { error: errObj.error, request_id: reqId };
+            } catch { /* ignore parse failures */ }
+          }
+        }
+      }
     } catch (err: any) {
-      console.error("Error fetching weather:", err);
+      console.error("Error fetching weather:", err.error ?? err.message ?? err);
+      if (err.request_id) setErrorReqId(err.request_id);
       setErrorMessage(randomDonkeyError());
+      setStreaming(false);
     } finally {
       setLoading(false);
       onLoadingChange?.(false);
@@ -160,7 +204,20 @@ const PromptForm: React.FC<PromptFormProps> = ({
         </div>
       )}
 
-      {weatherResult && (
+      {/* Streaming response — shown while tokens are arriving */}
+      {streaming && (
+        <div className="weather-response stream-active">
+          <div className="response-summary">
+            {streamText.split(/\n\n+/).map((para, i) => (
+              <p key={i} className="summary-para">{para}</p>
+            ))}
+            <span className="stream-cursor" aria-hidden="true">▋</span>
+          </div>
+        </div>
+      )}
+
+      {/* Completed response — shown once stream finishes */}
+      {!streaming && weatherResult && (
         <div className="weather-response">
           {weatherResult.metadata?.location && (
             <p className="response-location">

@@ -1,0 +1,91 @@
+/* === Hourly forecast strip === */
+
+.hourly-wrap {
+  position: relative;
+  margin: var(--space-md) 0;
+}
+
+.hourly-scroll {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  padding: var(--space-sm) var(--space-xs);
+  /* Hide scrollbar visually but keep it functional */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  scroll-snap-type: x mandatory;
+}
+
+.hourly-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.hourly-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hourly-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+/* Right-edge gradient fade to signal more content */
+.hourly-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3rem;
+  background: linear-gradient(to right, transparent, var(--bg-primary));
+  pointer-events: none;
+}
+
+/* === Individual card === */
+
+.hourly-card {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  min-width: 4.5rem;
+  scroll-snap-align: start;
+  transition: border-color 0.25s ease;
+}
+
+/* Current hour gets the accent border */
+.hourly-card--current {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary);
+  background: var(--bg-surface);
+}
+
+.hourly-label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hourly-card--current .hourly-label {
+  color: var(--accent-primary);
+}
+
+.hourly-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.hourly-temp {
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.hourly-precip {
+  font-size: 0.72rem;
+  color: var(--accent-secondary);
+  white-space: nowrap;
+}

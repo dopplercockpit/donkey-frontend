@@ -3,6 +3,7 @@ import PromptForm from './PromptForm';
 import GeoControls from './GeoControls';
 import SupportCard from './SupportCard';
 import ConversationHistory from './ConversationHistory';
+import HourlyForecast from './HourlyForecast';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
 
@@ -309,6 +310,11 @@ function App() {
                   : autoWeatherResult.summary || "Weather data loaded!"}
               </div>
             </div>
+          )}
+
+          {/* Hourly strip — sourced from the auto-weather structured response */}
+          {autoWeatherResult?.weather?.hourly?.length > 0 && (
+            <HourlyForecast hourly={autoWeatherResult.weather.hourly} />
           )}
 
           <ConversationHistory
