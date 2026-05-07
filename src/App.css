@@ -81,13 +81,14 @@ body {
   }
 }
 
-/* === Mood character card === */
+/* === Mood logo === */
 
-.donkey-mood-card {
+.donkey-mood {
   display: block;
-  margin: 0 auto 1rem;
-  max-width: 180px;
+  margin: 0.5rem auto 1rem auto;
+  max-width: 160px;
   width: 100%;
+  opacity: 0.92;
 }
 
 /* === Typography === */
@@ -249,8 +250,8 @@ body {
     padding-top: 0.75rem;
   }
 
-  .donkey-mood-card {
-    max-width: 120px;
+  .donkey-mood {
+    max-width: 110px;
   }
 
   .title {

@@ -8,7 +8,6 @@ import FavoriteCities from './FavoriteCities';
 import ShareButton from './ShareButton';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
-import donkeyCharacterCard from './assets/mister_donkey_character_card.png';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -321,9 +320,9 @@ function App() {
 
           {autoWeatherResult && (
             <img
-              src={donkeyCharacterCard}
-              alt="Mister Donkey reacting to the weather"
-              className="donkey-mood-card"
+              src={donkeyLogo}
+              alt="Mister Donkey mood"
+              className="donkey-mood"
               style={{
                 filter: getDonkeyFilter(),
                 transition: 'filter 1.5s ease',
