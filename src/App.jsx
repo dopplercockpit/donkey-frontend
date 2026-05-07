@@ -8,6 +8,7 @@ import FavoriteCities from './FavoriteCities';
 import ShareButton from './ShareButton';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
+import donkeyCharacterCard from './assets/mister_donkey_character_card.png';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -252,6 +253,22 @@ function App() {
     }
   }, [geoStatus, cityName, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const getDonkeyFilter = () => {
+    if (!autoWeatherResult?.weather?.current) return 'none';
+    const conditions = (autoWeatherResult.weather.current.conditions || '').toLowerCase();
+    const temp = autoWeatherResult.weather.current.temp_c ?? 20;
+
+    if (conditions.includes('thunder') || conditions.includes('storm') || temp > 35 || temp < -5)
+      return 'contrast(1.4) saturate(0.4) brightness(0.75)';
+    if (conditions.includes('snow') || conditions.includes('ice') || conditions.includes('sleet'))
+      return 'hue-rotate(200deg) saturate(0.8) brightness(1.05)';
+    if (conditions.includes('rain') || conditions.includes('drizzle') || conditions.includes('cloud'))
+      return 'saturate(0.55) brightness(0.88)';
+    if (conditions.includes('clear') || conditions.includes('sunny'))
+      return 'brightness(1.08) saturate(1.35) hue-rotate(-10deg)';
+    return 'none';
+  };
+
   const handleFavoriteSelect = useCallback((city) => {
     setCityName(city.name);
     setLocation({ lat: city.lat, lon: city.lon });
@@ -281,9 +298,13 @@ function App() {
       <div className="main-content">
         <div className="app-container">
           <img
-            src={donkeyLogo}
-            alt="Mister Donkey Logo"
-            className={`logo${(autoWeatherLoading || promptLoading) ? ' loading' : ''}`}
+            src={donkeyCharacterCard}
+            alt="Mister Donkey"
+            style={{
+              filter: getDonkeyFilter(),
+              transition: 'filter 1.5s ease',
+            }}
+            className="donkey-character"
           />
           <h1 className="title">weather from a jackass ❄️☀️</h1>
           <p className="subtitle">{randomTagline}</p>

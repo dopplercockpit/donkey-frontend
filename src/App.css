@@ -44,43 +44,13 @@ body {
   max-width: 800px;
 }
 
-/* === Logo === */
+/* === Character card === */
 
-.logo {
-  max-width: 720px;
-  width: 95%;
+.donkey-character {
+  max-width: 220px;
+  width: 100%;
   margin: 0 auto 1.5rem;
   display: block;
-  border: 2px solid var(--accent-primary);
-  padding: 10px;
-  background-color: #000;
-  box-shadow: 0 0 18px rgba(232, 131, 74, 0.5);
-  image-rendering: pixelated;
-  animation: crt-glow 2.5s ease-in-out infinite;
-  /* GPU layer hint so transform/filter changes don't repaint the rest of the page */
-  will-change: transform, filter;
-}
-
-@keyframes crt-glow {
-  0%   { filter: brightness(1); }
-  50%  { filter: brightness(1.15); }
-  100% { filter: brightness(1); }
-}
-
-/* Loading state — overrides crt-glow and adds bounce + drop-shadow pulse */
-.logo.loading {
-  animation: donkey-load 0.8s ease-in-out infinite;
-}
-
-@keyframes donkey-load {
-  0%, 100% {
-    transform: scale(1) translateY(0);
-    filter: brightness(1) drop-shadow(0 0 4px rgba(199, 108, 17, 0.15));
-  }
-  50% {
-    transform: scale(1.02) translateY(-3px);
-    filter: brightness(1.1) drop-shadow(0 0 8px rgba(199, 108, 17, 0.4));
-  }
 }
 
 /* === Typography === */
@@ -242,8 +212,8 @@ body {
     padding-top: 0.75rem;
   }
 
-  .logo {
-    max-width: 280px;
+  .donkey-character {
+    max-width: 140px;
   }
 
   .title {
