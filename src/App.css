@@ -119,10 +119,16 @@ body {
   box-shadow: var(--shadow-card);
 }
 
-.auto-weather-dismiss {
+.auto-weather-actions {
   position: absolute;
-  top: 0.6rem;
-  right: 0.75rem;
+  top: 0.5rem;
+  right: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.auto-weather-dismiss {
   background: none;
   border: none;
   color: var(--text-muted);

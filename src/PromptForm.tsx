@@ -4,6 +4,7 @@ import "./PromptForm.css";
 import ToneSelector from "./ToneSelector";
 import WeatherIndicators from "./WeatherIndicators";
 import VitaminDCard from "./VitaminDCard";
+import ShareButton from "./ShareButton";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -219,11 +220,16 @@ const PromptForm: React.FC<PromptFormProps> = ({
       {/* Completed response — shown once stream finishes */}
       {!streaming && weatherResult && (
         <div className="weather-response">
-          {weatherResult.metadata?.location && (
-            <p className="response-location">
-              📍 {weatherResult.metadata.location}
-            </p>
-          )}
+          <div className="response-header">
+            {weatherResult.metadata?.location && (
+              <p className="response-location">
+                📍 {weatherResult.metadata.location}
+              </p>
+            )}
+            {weatherResult.text_summary && (
+              <ShareButton textSummary={weatherResult.text_summary} />
+            )}
+          </div>
 
           <div className="response-summary">
             {weatherResult.text_summary

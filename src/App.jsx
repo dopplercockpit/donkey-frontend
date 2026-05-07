@@ -4,6 +4,8 @@ import GeoControls from './GeoControls';
 import SupportCard from './SupportCard';
 import ConversationHistory from './ConversationHistory';
 import HourlyForecast from './HourlyForecast';
+import FavoriteCities from './FavoriteCities';
+import ShareButton from './ShareButton';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
 
@@ -250,6 +252,14 @@ function App() {
     }
   }, [geoStatus, cityName, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const handleFavoriteSelect = useCallback((city) => {
+    setCityName(city.name);
+    setLocation({ lat: city.lat, lon: city.lon });
+    if (sessionId) {
+      fetchAutoWeather({ lat: city.lat, lon: city.lon }, city.name, selectedTone, sessionId);
+    }
+  }, [fetchAutoWeather, selectedTone, sessionId]);
+
   const handleGeoToggle = () => {
     const next = !geoEnabled;
     setGeoEnabled(next);
@@ -286,6 +296,12 @@ function App() {
             onToggle={handleGeoToggle}
           />
 
+          <FavoriteCities
+            cityName={cityName}
+            location={location}
+            onSelectCity={handleFavoriteSelect}
+          />
+
           {/* Auto-loaded weather result */}
           {autoWeatherLoading && (
             <div className="auto-weather-loading">
@@ -294,13 +310,18 @@ function App() {
           )}
           {showAutoWeather && autoWeatherResult && !autoWeatherLoading && (
             <div className="auto-weather-card">
-              <button
-                className="auto-weather-dismiss"
-                onClick={() => setShowAutoWeather(false)}
-                aria-label="Dismiss"
-              >
-                ×
-              </button>
+              <div className="auto-weather-actions">
+                {autoWeatherResult.text_summary && (
+                  <ShareButton textSummary={autoWeatherResult.text_summary} />
+                )}
+                <button
+                  className="auto-weather-dismiss"
+                  onClick={() => setShowAutoWeather(false)}
+                  aria-label="Dismiss"
+                >
+                  ×
+                </button>
+              </div>
               <h3 className="auto-weather-title">🐴 Mister Donkey's Auto-Sniff Report</h3>
               <div className="auto-weather-content">
                 {autoWeatherResult.text_summary

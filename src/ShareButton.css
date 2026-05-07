@@ -1,0 +1,56 @@
+/* ShareButton.css */
+
+.share-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  transition: border-color 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.share-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.share-icon {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+/* === Toast === */
+
+@keyframes share-toast-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.share-toast {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  padding: 0.2rem 0.5rem;
+  pointer-events: none;
+  animation: share-toast-in 0.15s ease forwards;
+  box-shadow: var(--shadow-sm);
+}

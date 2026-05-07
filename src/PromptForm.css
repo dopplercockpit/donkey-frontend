@@ -157,10 +157,18 @@
   text-align: left;
 }
 
+.response-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+  min-height: 1.4rem;
+}
+
 .response-location {
   font-size: var(--fs-sm);
   color: var(--text-muted);
-  margin: 0 0 var(--space-sm);
+  margin: 0;
 }
 
 .response-summary {
