@@ -8,6 +8,15 @@ import FavoriteCities from './FavoriteCities';
 import ShareButton from './ShareButton';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
+import donkeySunny from './assets/moods/donkey_sunny.png';
+import donkeyRainy from './assets/moods/donkey_rainy.png';
+import donkeySnowy from './assets/moods/donkey_snowy.png';
+import donkeyWindy from './assets/moods/donkey_windy.png';
+import donkeyFoggy from './assets/moods/donkey_foggy.png';
+import donkeyHot from './assets/moods/donkey_hot.png';
+import donkeyThunder from './assets/moods/donkey_thunder.png';
+import donkeyAfterStorm from './assets/moods/donkey_after_storm.png';
+import donkeyDefaultMood from './assets/moods/donkey_default.png';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -86,6 +95,53 @@ function applyWeatherTheme(data) {
       : WEATHER_THEMES[current?.condition_code] ?? DEFAULT_THEME;
 
   Object.entries(theme).forEach(([prop, val]) => root.style.setProperty(prop, val));
+}
+
+const DONKEY_MOOD_IMAGES = {
+  sunny:       donkeySunny,
+  rainy:       donkeyRainy,
+  snowy:       donkeySnowy,
+  windy:       donkeyWindy,
+  foggy:       donkeyFoggy,
+  hot:         donkeyHot,
+  thunder:     donkeyThunder,
+  after_storm: donkeyAfterStorm,
+  default:     donkeyDefaultMood,
+};
+
+function getDonkeyMoodKey(result) {
+  if (!result || typeof result !== 'object') return 'default';
+
+  // Gather condition text from structured fields, falling back to prose
+  const current = result.weather?.current ?? result.current ?? result.data?.current ?? {};
+  const conditionText = [
+    current.conditions,
+    current.condition,
+    current.weather?.[0]?.main,
+    current.weather?.[0]?.description,
+    result.condition,
+    result.weatherMain,
+    result.description,
+    result.text_summary,
+    result.summary,
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  const temp = current.temp_c ?? current.temp ?? result.temperature ?? result.temp
+    ?? result.data?.current?.temp ?? null;
+  const wind = current.wind_kph != null ? current.wind_kph / 3.6  // convert to m/s
+    : current.wind_speed ?? current.windSpeed
+    ?? result.wind_speed ?? result.windSpeed
+    ?? result.data?.current?.wind_speed ?? null;
+
+  if (/thunder|lightning|storm/.test(conditionText)) return 'thunder';
+  if (/snow|sleet|ice|freez|frost/.test(conditionText))  return 'snowy';
+  if (/fog|mist|haze|smoke/.test(conditionText))         return 'foggy';
+  if (/heat|heatwave/.test(conditionText) || (temp !== null && temp >= 30)) return 'hot';
+  if (/wind|gust|bluster/.test(conditionText) || (wind !== null && wind >= 10)) return 'windy';
+  if (/rain|drizzle|shower|precip/.test(conditionText))  return 'rainy';
+  if (/clear|sunny/.test(conditionText))                 return 'sunny';
+  if (/rainbow|clearing|partly clear/.test(conditionText)) return 'after_storm';
+  return 'default';
 }
 
 const donkeyTaglines = [
@@ -252,21 +308,8 @@ function App() {
     }
   }, [geoStatus, cityName, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const getDonkeyFilter = () => {
-    if (!autoWeatherResult?.weather?.current) return 'none';
-    const conditions = (autoWeatherResult.weather.current.conditions || '').toLowerCase();
-    const temp = autoWeatherResult.weather.current.temp_c ?? 20;
-
-    if (conditions.includes('thunder') || conditions.includes('storm') || temp > 35 || temp < -5)
-      return 'contrast(1.4) saturate(0.4) brightness(0.75)';
-    if (conditions.includes('snow') || conditions.includes('ice') || conditions.includes('sleet'))
-      return 'hue-rotate(200deg) saturate(0.8) brightness(1.05)';
-    if (conditions.includes('rain') || conditions.includes('drizzle') || conditions.includes('cloud'))
-      return 'saturate(0.55) brightness(0.88)';
-    if (conditions.includes('clear') || conditions.includes('sunny'))
-      return 'brightness(1.08) saturate(1.35) hue-rotate(-10deg)';
-    return 'none';
-  };
+  const donkeyMoodKey = autoWeatherResult ? getDonkeyMoodKey(autoWeatherResult) : 'default';
+  const donkeyMoodImage = DONKEY_MOOD_IMAGES[donkeyMoodKey] || DONKEY_MOOD_IMAGES.default || donkeyLogo;
 
   const handleFavoriteSelect = useCallback((city) => {
     setCityName(city.name);
@@ -320,13 +363,9 @@ function App() {
 
           {autoWeatherResult && (
             <img
-              src={donkeyLogo}
-              alt="Mister Donkey mood"
+              src={donkeyMoodImage}
+              alt={`Mister Donkey mood: ${donkeyMoodKey}`}
               className="donkey-mood"
-              style={{
-                filter: getDonkeyFilter(),
-                transition: 'filter 1.5s ease',
-              }}
             />
           )}
 

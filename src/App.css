@@ -81,14 +81,16 @@ body {
   }
 }
 
-/* === Mood logo === */
+/* === Mood image === */
 
 .donkey-mood {
   display: block;
   margin: 0.5rem auto 1rem auto;
-  max-width: 160px;
+  max-width: 220px;
   width: 100%;
-  opacity: 0.92;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.96;
 }
 
 /* === Typography === */
@@ -251,7 +253,7 @@ body {
   }
 
   .donkey-mood {
-    max-width: 110px;
+    max-width: 150px;
   }
 
   .title {
