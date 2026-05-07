@@ -220,6 +220,113 @@ body {
   font-size: var(--fs-sm);
 }
 
+/* === Guide selector === */
+
+.guide-selector-section {
+  width: min(100%, 980px);
+  margin: 1.25rem auto;
+  padding: 0 1rem;
+}
+
+.guide-selector-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9fb3c8;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.guide-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem;
+  border: 1px solid rgba(159, 179, 200, 0.25);
+  border-radius: 10px;
+  background: rgba(31, 41, 55, 0.72);
+  color: #f8fafc;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.guide-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(249, 115, 22, 0.75);
+  box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.2);
+}
+
+.guide-card.selected {
+  border-color: #f97316;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.38);
+  background: rgba(44, 55, 72, 0.95);
+}
+
+.guide-badge {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  padding: 0.12rem 0.35rem;
+  border-radius: 999px;
+  background: #f97316;
+  color: #fff7ed;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.guide-image {
+  width: 100%;
+  max-width: 112px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.guide-title {
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1.1;
+}
+
+.guide-description {
+  color: #a8b3c2;
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+@media (max-width: 768px) {
+  .guide-selector-section {
+    margin: 1rem auto;
+  }
+
+  .guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .guide-image {
+    max-width: 96px;
+  }
+
+  .guide-description {
+    font-size: 0.72rem;
+  }
+}
+
 /* === Footer === */
 
 .footer {

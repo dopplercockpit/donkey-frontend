@@ -6,6 +6,8 @@ import ConversationHistory from './ConversationHistory';
 import HourlyForecast from './HourlyForecast';
 import FavoriteCities from './FavoriteCities';
 import ShareButton from './ShareButton';
+import GuideSelector from './components/GuideSelector';
+import { getDonkeyGuideById } from './data/donkeyGuides';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
 import donkeySunny from './assets/moods/donkey_sunny.png';
@@ -172,8 +174,13 @@ function App() {
   // Session state
   const [sessionId, setSessionId] = useState(null);
 
-  // Personality state (lifted here so it persists across requests)
-  const [selectedTone, setSelectedTone] = useState("sarcastic");
+  // Guide / personality selection — drives both UI and backend tone
+  const [selectedGuideId, setSelectedGuideId] = useState(
+    () => localStorage.getItem("misterDonkeyGuide") || "default"
+  );
+  const selectedGuide = getDonkeyGuideById(selectedGuideId);
+  // toneId maps the guide choice to the backend TONE_PRESETS key
+  const selectedTone = selectedGuide.toneId;
 
   // Auto-loaded weather result
   const [autoWeatherResult, setAutoWeatherResult] = useState(null);
@@ -206,6 +213,11 @@ function App() {
   }, []);
 
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
+
+  // Persist guide selection
+  useEffect(() => {
+    localStorage.setItem("misterDonkeyGuide", selectedGuideId);
+  }, [selectedGuideId]);
 
   // 1) Session ID — create or restore from localStorage
   useEffect(() => {
@@ -347,6 +359,11 @@ function App() {
           <h1 className="title">weather from a jackass ❄️☀️</h1>
           <p className="subtitle">{randomTagline}</p>
 
+          <GuideSelector
+            selectedGuideId={selectedGuideId}
+            onSelectGuide={setSelectedGuideId}
+          />
+
           <GeoControls
             geoStatus={geoStatus}
             geoEnabled={geoEnabled}
@@ -414,7 +431,6 @@ function App() {
             location={location}
             cityName={cityName}
             selectedTone={selectedTone}
-            setSelectedTone={setSelectedTone}
             sessionId={sessionId}
             onWeatherResult={setAutoWeatherResult}
             onConversationTurn={handleConversationTurn}

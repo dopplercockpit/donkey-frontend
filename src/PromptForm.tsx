@@ -37,7 +37,7 @@ interface PromptFormProps {
   location?: { lat: number; lon: number } | null;
   cityName?: string | null;
   selectedTone: string;
-  setSelectedTone: (tone: string) => void;
+  setSelectedTone?: (tone: string) => void;
   sessionId?: string | null;
   onWeatherResult?: (result: any) => void;
   onConversationTurn?: (userText: string, assistantText: string) => void;
@@ -48,7 +48,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
   location = null,
   cityName = null,
   selectedTone,
-  setSelectedTone,
+  setSelectedTone = () => {},
   sessionId = null,
   onWeatherResult,
   onConversationTurn,
