@@ -5,6 +5,7 @@ import ToneSelector from "./ToneSelector";
 import WeatherIndicators from "./WeatherIndicators";
 import VitaminDCard from "./VitaminDCard";
 import ShareButton from "./ShareButton";
+import SkeletonWeatherCard from "./components/SkeletonWeatherCard";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -161,7 +162,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
       <ToneSelector selectedTone={selectedTone} onToneChange={setSelectedTone} />
 
       {cityName && (
-        <div className="location-badge">
+        <div className="location-badge" id="prompt-location-badge">
           📍 {cityName}
         </div>
       )}
@@ -190,11 +191,16 @@ const PromptForm: React.FC<PromptFormProps> = ({
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
           placeholder="Ask the Donkey..."
           disabled={loading}
+          aria-describedby={cityName ? "prompt-location-badge" : undefined}
         />
         <button type="submit" className="prompt-button" disabled={loading}>
           {loading ? "⏳" : "Send"}
         </button>
       </form>
+
+      {loading && !streamText && !weatherResult && !errorMessage && (
+        <SkeletonWeatherCard label="Loading donkey response" />
+      )}
 
       {errorMessage && (
         <div className="error-banner" role="alert">

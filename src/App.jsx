@@ -8,6 +8,7 @@ import FavoriteCities from './FavoriteCities';
 import ShareButton from './ShareButton';
 import GuideSelector from './components/GuideSelector';
 import OnboardingModal, { shouldShowOnboarding } from './components/OnboardingModal';
+import SkeletonWeatherCard from './components/SkeletonWeatherCard';
 import { getDonkeyGuideById } from './data/donkeyGuides';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
@@ -166,6 +167,8 @@ const donkeyTaglines = [
 ];
 
 function App() {
+  const [isOnline, setIsOnline] = useState(() => window.navigator.onLine);
+
   // Geolocation state
   const [geoEnabled, setGeoEnabled] = useState(true);
   const [geoStatus, setGeoStatus] = useState("idle"); // idle|requesting|granted|denied|error|disabled
@@ -217,6 +220,19 @@ function App() {
   }, []);
 
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   // Persist guide selection
   useEffect(() => {
@@ -363,6 +379,11 @@ function App() {
 
       <div className="main-content">
         <div className="app-container">
+          {!isOnline && (
+            <div className="offline-banner" role="status" aria-live="polite">
+              🐴 The donkey lost signal — check your connection
+            </div>
+          )}
           <img
             src={donkeyLogo}
             alt="Mister Donkey Logo"
@@ -400,9 +421,7 @@ function App() {
 
           {/* Auto-loaded weather result */}
           {autoWeatherLoading && (
-            <div className="auto-weather-loading">
-              🐴 Sniffing the air...
-            </div>
+            <SkeletonWeatherCard label="Loading automatic weather report" />
           )}
           {showAutoWeather && autoWeatherResult && !autoWeatherLoading && (
             <div className="auto-weather-card">
@@ -413,7 +432,7 @@ function App() {
                 <button
                   className="auto-weather-dismiss"
                   onClick={() => setShowAutoWeather(false)}
-                  aria-label="Dismiss"
+                  aria-label="Dismiss auto weather result"
                 >
                   ×
                 </button>

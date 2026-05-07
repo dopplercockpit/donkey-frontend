@@ -13,6 +13,14 @@
   font-weight: 500;
 }
 
+.geo-status-region {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
 .geo-status {
   color: var(--text-muted);
 }

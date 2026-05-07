@@ -4,7 +4,7 @@ import './WeatherIndicators.css';
 function Indicator({ label, value, icon }) {
   if (value === null || value === undefined) return null;
   return (
-    <div className="indicator-tile">
+    <div className="indicator-tile" role="listitem">
       {icon && <span className="indicator-icon">{icon}</span>}
       <span className="indicator-value">{value}</span>
       <span className="indicator-label">{label}</span>
@@ -40,7 +40,7 @@ export default function WeatherIndicators({ weather }) {
   const airQuality = weather.air_quality || null;
 
   return (
-    <div className="weather-indicators">
+    <div className="weather-indicators" role="list">
       <Indicator icon={c.icon || "🌡️"} label="Conditions" value={c.conditions} />
       <Indicator icon="🌡️" label="Temperature" value={tempDisplay} />
       {feelsLike && <Indicator icon="🤔" label="Feels like" value={feelsLike} />}

@@ -1,0 +1,41 @@
+.skeleton-weather-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow-card);
+}
+
+.skeleton-line {
+  height: 0.85rem;
+  border-radius: 999px;
+  margin: 0.65rem 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite linear;
+}
+
+.skeleton-line--title {
+  width: 55%;
+  height: 1rem;
+}
+
+.skeleton-line--short {
+  width: 42%;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}

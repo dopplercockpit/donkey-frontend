@@ -15,6 +15,17 @@ body {
   text-align: center;
 }
 
+.app-error-fallback {
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 1rem;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
 /* === Page layout === */
 
 .page-wrapper {
@@ -341,6 +352,19 @@ body {
 .app-container {
   text-align: center;
   padding-top: 1.5rem;
+}
+
+.offline-banner {
+  width: min(100%, 42rem);
+  margin: 0 auto 1rem;
+  padding: 0.75rem 1rem;
+  color: #fff7ed;
+  background: #7c2d12;
+  border: 1px solid #fb923c;
+  border-radius: var(--radius);
+  font-weight: 700;
+  line-height: 1.4;
+  box-shadow: var(--shadow-card);
 }
 
 /* === Mobile === */

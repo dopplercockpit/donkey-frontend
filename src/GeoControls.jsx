@@ -36,12 +36,14 @@ export default function GeoControls({ geoStatus, geoEnabled, cityName, onRetry, 
 
   return (
     <div className="geo-controls">
-      {cityName && geoStatus === "granted" && (
-        <span className="geo-city">📍 {cityName}</span>
-      )}
-      {statusLabel && (
-        <span className={`geo-status geo-status--${geoStatus}`}>{statusLabel}</span>
-      )}
+      <div className="geo-status-region" role="status" aria-live="polite">
+        {cityName && geoStatus === "granted" && (
+          <span className="geo-city">📍 {cityName}</span>
+        )}
+        {statusLabel && (
+          <span className={`geo-status geo-status--${geoStatus}`}>{statusLabel}</span>
+        )}
+      </div>
       <div className="geo-actions">
         {(geoStatus === "denied" || geoStatus === "error") && (
           <button type="button" className="geo-btn geo-btn--retry" onClick={onRetry}>
@@ -52,6 +54,8 @@ export default function GeoControls({ geoStatus, geoEnabled, cityName, onRetry, 
           type="button"
           className={`geo-btn geo-btn--toggle ${!geoEnabled ? 'geo-btn--off' : ''}`}
           onClick={onToggle}
+          aria-pressed={geoEnabled}
+          aria-label={geoEnabled ? "Disable location sharing" : "Enable location sharing"}
         >
           {geoEnabled ? "Disable location" : "Enable location"}
         </button>
