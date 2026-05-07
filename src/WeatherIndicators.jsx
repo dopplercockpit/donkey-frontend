@@ -15,6 +15,9 @@ function Indicator({ label, value, icon }) {
 export default function WeatherIndicators({ weather }) {
   if (!weather?.current) return null;
   const c = weather.current;
+  const conditions = c.conditions || c.condition || c.condition_main || c.conditions_code || null;
+  const windKph = c.wind_kph ?? c.wind_speed_kmh;
+  const precipProbability = c.precip_probability ?? c.precip_chance;
 
   const tempDisplay = [
     c.temp_c !== undefined && c.temp_c !== null ? `${c.temp_c}°C` : null,
@@ -25,23 +28,23 @@ export default function WeatherIndicators({ weather }) {
     ? `${c.feels_like_c}°C`
     : null;
 
-  const wind = c.wind_kph !== undefined && c.wind_kph !== null
-    ? `${c.wind_kph} km/h`
+  const wind = windKph !== undefined && windKph !== null
+    ? `${windKph} km/h`
     : null;
 
   const humidity = c.humidity !== undefined && c.humidity !== null
     ? `${c.humidity}%`
     : null;
 
-  const precip = c.precip_probability !== undefined && c.precip_probability !== null
-    ? `${c.precip_probability}%`
+  const precip = precipProbability !== undefined && precipProbability !== null
+    ? `${precipProbability}%`
     : null;
 
   const airQuality = weather.air_quality || null;
 
   return (
     <div className="weather-indicators" role="list">
-      <Indicator icon={c.icon || "🌡️"} label="Conditions" value={c.conditions} />
+      <Indicator icon={c.icon || "🌡️"} label="Conditions" value={conditions} />
       <Indicator icon="🌡️" label="Temperature" value={tempDisplay} />
       {feelsLike && <Indicator icon="🤔" label="Feels like" value={feelsLike} />}
       {humidity && <Indicator icon="💧" label="Humidity" value={humidity} />}

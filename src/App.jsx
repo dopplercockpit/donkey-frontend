@@ -90,13 +90,33 @@ const HEAT_THEME = {
   '--bg-secondary': '#2a1a14',
 };
 
+function getThemeFromConditionText(current) {
+  const conditionText = [
+    current?.condition_main,
+    current?.conditions_code,
+    current?.conditions,
+    current?.condition,
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  if (/thunder|lightning|storm/.test(conditionText)) return WEATHER_THEMES[1087];
+  if (/snow|sleet|ice|freez|frost/.test(conditionText)) return WEATHER_THEMES[1066];
+  if (/fog|mist|haze|smoke/.test(conditionText)) return WEATHER_THEMES[1030];
+  if (/rain|drizzle|shower|precip/.test(conditionText)) return WEATHER_THEMES[1063];
+  if (/clear|sunny/.test(conditionText)) return WEATHER_THEMES[1000];
+  if (/cloud|overcast/.test(conditionText)) return WEATHER_THEMES[1006];
+  if (/heat|hot|heatwave/.test(conditionText)) return HEAT_THEME;
+  return null;
+}
+
 function applyWeatherTheme(data) {
   const root = document.documentElement;
   const current = data?.weather?.current;
+  const conditionCode = current?.condition_code ?? current?.conditions_code;
+  const conditionTheme = WEATHER_THEMES[conditionCode] ?? getThemeFromConditionText(current);
   const theme =
     current?.temp_c > 35
       ? HEAT_THEME
-      : WEATHER_THEMES[current?.condition_code] ?? DEFAULT_THEME;
+      : conditionTheme ?? DEFAULT_THEME;
 
   Object.entries(theme).forEach(([prop, val]) => root.style.setProperty(prop, val));
 }
@@ -120,6 +140,9 @@ function getDonkeyMoodKey(result) {
   const current = result.weather?.current ?? result.current ?? result.data?.current ?? {};
   const conditionText = [
     current.conditions,
+    current.condition_main,
+    current.condition_code,
+    current.conditions_code,
     current.condition,
     current.weather?.[0]?.main,
     current.weather?.[0]?.description,
@@ -133,7 +156,9 @@ function getDonkeyMoodKey(result) {
   const temp = current.temp_c ?? current.temp ?? result.temperature ?? result.temp
     ?? result.data?.current?.temp ?? null;
   const wind = current.wind_kph != null ? current.wind_kph / 3.6  // convert to m/s
-    : current.wind_speed ?? current.windSpeed
+    : current.wind_speed_kmh != null ? current.wind_speed_kmh / 3.6
+    : current.wind_ms ?? current.wind_speed_ms
+    ?? current.wind_speed ?? current.windSpeed
     ?? result.wind_speed ?? result.windSpeed
     ?? result.data?.current?.wind_speed ?? null;
 
