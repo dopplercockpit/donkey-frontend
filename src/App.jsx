@@ -298,13 +298,9 @@ function App() {
       <div className="main-content">
         <div className="app-container">
           <img
-            src={donkeyCharacterCard}
-            alt="Mister Donkey"
-            style={{
-              filter: getDonkeyFilter(),
-              transition: 'filter 1.5s ease',
-            }}
-            className="donkey-character"
+            src={donkeyLogo}
+            alt="Mister Donkey Logo"
+            className={`logo${(autoWeatherLoading || promptLoading) ? ' loading' : ''}`}
           />
           <h1 className="title">weather from a jackass ❄️☀️</h1>
           <p className="subtitle">{randomTagline}</p>
@@ -322,6 +318,18 @@ function App() {
             location={location}
             onSelectCity={handleFavoriteSelect}
           />
+
+          {autoWeatherResult && (
+            <img
+              src={donkeyCharacterCard}
+              alt="Mister Donkey reacting to the weather"
+              className="donkey-mood-card"
+              style={{
+                filter: getDonkeyFilter(),
+                transition: 'filter 1.5s ease',
+              }}
+            />
+          )}
 
           {/* Auto-loaded weather result */}
           {autoWeatherLoading && (
