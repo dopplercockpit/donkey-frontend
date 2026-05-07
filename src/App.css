@@ -219,3 +219,32 @@ body {
   text-align: center;
   padding-top: 1.5rem;
 }
+
+/* === Mobile === */
+
+@media (max-width: 768px) {
+  body,
+  #root {
+    overflow-x: hidden;
+  }
+
+  .page-wrapper {
+    padding: 0.5rem;
+  }
+
+  .app-container {
+    padding-top: 0.75rem;
+  }
+
+  .logo {
+    max-width: 280px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .subtitle {
+    font-size: var(--fs-md);
+  }
+}

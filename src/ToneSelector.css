@@ -118,11 +118,13 @@
 
 @media (max-width: 600px) {
   .character-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
   }
 
   .character-card {
-    width: calc(50% - 0.5rem);
-    min-height: 90px;
+    width: 100%;
+    min-height: 44px;
   }
 }

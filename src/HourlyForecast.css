@@ -14,6 +14,8 @@
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
   scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .hourly-scroll::-webkit-scrollbar {
