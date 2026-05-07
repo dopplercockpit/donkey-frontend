@@ -7,6 +7,7 @@ import HourlyForecast from './HourlyForecast';
 import FavoriteCities from './FavoriteCities';
 import ShareButton from './ShareButton';
 import GuideSelector from './components/GuideSelector';
+import OnboardingModal, { shouldShowOnboarding } from './components/OnboardingModal';
 import { getDonkeyGuideById } from './data/donkeyGuides';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
@@ -173,6 +174,9 @@ function App() {
 
   // Session state
   const [sessionId, setSessionId] = useState(null);
+
+  // Onboarding modal
+  const [showOnboarding, setShowOnboarding] = useState(() => shouldShowOnboarding());
 
   // Guide / personality selection — drives both UI and backend tone
   const [selectedGuideId, setSelectedGuideId] = useState(
@@ -344,6 +348,14 @@ function App() {
   };
 
   return (
+    <>
+    {showOnboarding && (
+      <OnboardingModal
+        selectedGuideId={selectedGuideId}
+        onSelectGuide={setSelectedGuideId}
+        onComplete={() => setShowOnboarding(false)}
+      />
+    )}
     <div className="page-wrapper">
       <div className="sidebar ad-left">
         <SupportCard />
@@ -449,6 +461,7 @@ function App() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

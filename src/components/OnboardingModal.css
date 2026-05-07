@@ -1,0 +1,272 @@
+/* OnboardingModal.css */
+
+/* ── Backdrop ── */
+.ob-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 12, 18, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 1rem;
+  animation: ob-fade-in 0.25s ease forwards;
+}
+
+@keyframes ob-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal shell ── */
+.ob-modal {
+  position: relative;
+  width: min(520px, 100%);
+  background: var(--bg-card, #2d3540);
+  border: 1px solid var(--border-color, #3a4553);
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  animation: ob-slide-up 0.3s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  /* Contain the sliding panels */
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes ob-slide-up {
+  from { transform: translateY(32px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Dot nav ── */
+.ob-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1rem 1rem 0;
+}
+
+.ob-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-color, #3a4553);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.ob-dot--active {
+  background: var(--accent-primary, #e8834a);
+  transform: scale(1.3);
+}
+
+/* ── Skip button ── */
+.ob-skip {
+  position: absolute;
+  top: 0.85rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-muted, #6b7a8d);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.ob-skip:hover {
+  color: var(--text-secondary, #a8b3be);
+}
+
+/* ── Panel track ── */
+.ob-panels {
+  display: flex;
+  width: 100%;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Each panel stretches to 100% of the container width */
+  min-height: 0;
+}
+
+/* ── Individual panel ── */
+.ob-panel {
+  flex: 0 0 100%;
+  width: 100%;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  box-sizing: border-box;
+}
+
+.ob-panel--guides {
+  padding: 1.25rem 1rem;
+}
+
+/* ── Panel content ── */
+.ob-logo {
+  max-width: 260px;
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.ob-heading {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-primary, #f0f2f5);
+  line-height: 1.2;
+}
+
+.ob-body {
+  margin: 0;
+  font-size: 0.97rem;
+  color: var(--text-secondary, #a8b3be);
+  line-height: 1.6;
+  max-width: 380px;
+}
+
+.ob-body--muted {
+  color: var(--text-muted, #6b7a8d);
+  font-size: 0.88rem;
+}
+
+.ob-location-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+/* ── Guide grid (panel 2) ── */
+.ob-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.ob-guide-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.25rem;
+  border: 1.5px solid rgba(159, 179, 200, 0.2);
+  border-radius: 10px;
+  background: rgba(31, 41, 55, 0.6);
+  color: var(--text-primary, #f0f2f5);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+  text-align: center;
+}
+
+.ob-guide-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(249, 115, 22, 0.6);
+}
+
+.ob-guide-card--selected {
+  border-color: var(--accent-primary, #e8834a);
+  box-shadow: 0 0 0 2px rgba(232, 131, 74, 0.35);
+  background: rgba(44, 55, 72, 0.95);
+}
+
+.ob-guide-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ob-guide-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-secondary, #a8b3be);
+}
+
+/* ── Navigation row ── */
+.ob-nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid var(--border-color, #3a4553);
+}
+
+.ob-btn {
+  padding: 0.55rem 1.4rem;
+  border-radius: var(--radius, 10px);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  border: none;
+  line-height: 1;
+}
+
+.ob-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.ob-btn--primary {
+  background: var(--accent-primary, #e8834a);
+  color: #fff;
+  margin-left: auto;
+}
+
+.ob-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--border-color, #3a4553);
+  color: var(--text-secondary, #a8b3be);
+}
+
+.ob-btn--ghost:hover {
+  border-color: var(--accent-primary, #e8834a);
+  color: var(--text-primary, #f0f2f5);
+}
+
+/* ── Mobile: full-screen ── */
+@media (max-width: 600px) {
+  .ob-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .ob-modal {
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 92dvh;
+    overflow-y: auto;
+  }
+
+  .ob-panel {
+    padding: 1.25rem 1.25rem;
+  }
+
+  .ob-guide-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: none;
+  }
+
+  .ob-logo {
+    max-width: 180px;
+  }
+
+  .ob-heading {
+    font-size: 1.25rem;
+  }
+}
