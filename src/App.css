@@ -104,6 +104,50 @@ body {
   opacity: 0.96;
 }
 
+.mood-debug-panel {
+  width: min(100%, 34rem);
+  margin: 0 auto var(--space-md);
+  padding: 0.65rem 0.8rem;
+  background: rgba(10, 14, 20, 0.88);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.mood-debug-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+}
+
+.mood-debug-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.mood-debug-preview img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.mood-debug-preview span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 /* === Typography === */
 
 .title {

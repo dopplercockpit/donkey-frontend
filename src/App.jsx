@@ -11,6 +11,7 @@ import OnboardingModal, { shouldShowOnboarding } from './components/OnboardingMo
 import PwaUpdateToast from './components/PwaUpdateToast';
 import SkeletonWeatherCard from './components/SkeletonWeatherCard';
 import { getDonkeyGuideById } from './data/donkeyGuides';
+import { getDonkeyMoodDebug } from './utils/weatherMood';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
 import kofiCoffeeDonkey from './assets/kofi_coffee_donkey.png';
@@ -142,56 +143,6 @@ const DONKEY_MOOD_IMAGES = {
   pleasant_night: donkeyDefaultMood,
   default:     donkeyDefaultMood,
 };
-
-function getDonkeyMoodKey(result) {
-  if (!result || typeof result !== 'object') return 'default';
-
-  // Gather condition text from structured fields, falling back to prose
-  const current = result.weather?.current ?? result.current ?? result.data?.current ?? {};
-  const conditionText = [
-    current.conditions,
-    current.condition_main,
-    current.condition_code,
-    current.conditions_code,
-    current.condition,
-    current.weather?.[0]?.main,
-    current.weather?.[0]?.description,
-    result.condition,
-    result.weatherMain,
-    result.description,
-    result.text_summary,
-    result.summary,
-  ].filter(Boolean).join(' ').toLowerCase();
-
-  const temp = current.temp_c ?? current.temp ?? result.temperature ?? result.temp
-    ?? result.data?.current?.temp ?? null;
-  const wind = current.wind_kph != null ? current.wind_kph / 3.6  // convert to m/s
-    : current.wind_speed_kmh != null ? current.wind_speed_kmh / 3.6
-    : current.wind_ms ?? current.wind_speed_ms
-    ?? current.wind_speed ?? current.windSpeed
-    ?? result.wind_speed ?? result.windSpeed
-    ?? result.data?.current?.wind_speed ?? null;
-  const visibilityKm = current.visibility_km
-    ?? (current.visibility_m != null ? current.visibility_m / 1000 : null);
-  const isNight = current.is_day === false || current.is_day === 0;
-  const isMildNight = isNight
-    && temp !== null
-    && temp >= 12
-    && temp <= 25
-    && /clear|sunny|partly|cloud|overcast/.test(conditionText);
-
-  if (/after storm|rainbow|clearing|partly clear/.test(conditionText)) return 'after_storm';
-  if (/thunder|lightning|storm/.test(conditionText)) return 'thunder';
-  if (/snow|sleet|ice|freez|frost/.test(conditionText))  return 'snowy';
-  if (/fog|mist|haze|smoke/.test(conditionText) || (visibilityKm !== null && visibilityKm <= 2)) return 'foggy';
-  if (/heat|heatwave/.test(conditionText) || (temp !== null && temp >= 30)) return 'hot';
-  if (/chilly|cool/.test(conditionText) || (temp !== null && temp > 0 && temp <= 12)) return 'chilly';
-  if (/wind|gust|bluster/.test(conditionText) || (wind !== null && wind >= 10)) return 'windy';
-  if (/rain|drizzle|shower|precip/.test(conditionText))  return 'rainy';
-  if (isMildNight) return 'pleasant_night';
-  if (/clear|sunny/.test(conditionText))                 return 'sunny';
-  return 'default';
-}
 
 const donkeyTaglines = [
   "I check the sky so you don't have to read numbers.",
@@ -448,8 +399,12 @@ function App() {
     }
   }, [geoStatus, cityName, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const donkeyMoodKey = currentWeatherResult ? getDonkeyMoodKey(currentWeatherResult) : 'default';
+  const donkeyMoodDebug = currentWeatherResult ? getDonkeyMoodDebug(currentWeatherResult) : null;
+  const donkeyMoodKey = donkeyMoodDebug?.moodKey || 'default';
   const donkeyMoodImage = DONKEY_MOOD_IMAGES[donkeyMoodKey] || DONKEY_MOOD_IMAGES.default || donkeyLogo;
+  const moodDebugEnabled =
+    import.meta.env.VITE_DEBUG_MOOD === "true" ||
+    localStorage.getItem("md_debug_mood") === "true";
 
   const handleFavoriteSelect = useCallback((city) => {
     setCityName(city.name);
@@ -527,11 +482,33 @@ function App() {
           />
 
           {currentWeatherResult && (
+            <>
             <img
               src={donkeyMoodImage}
               alt={`Mister Donkey mood: ${donkeyMoodKey}`}
               className="donkey-mood"
             />
+            {moodDebugEnabled && donkeyMoodDebug && (
+              <div className="mood-debug-panel">
+                <div><strong>Mood:</strong> {donkeyMoodDebug.moodKey}</div>
+                <div><strong>Image key:</strong> {donkeyMoodKey}</div>
+                <div><strong>Rule:</strong> {donkeyMoodDebug.rule}</div>
+                <div><strong>Condition:</strong> {donkeyMoodDebug.conditionMain || "n/a"} / {donkeyMoodDebug.conditionText || "n/a"}</div>
+                <div><strong>Code:</strong> {String(donkeyMoodDebug.conditionCode ?? "n/a")}</div>
+                <div><strong>Temp:</strong> {donkeyMoodDebug.tempC ?? "n/a"}°C</div>
+                <div><strong>is_day:</strong> {String(donkeyMoodDebug.isDay ?? "n/a")}</div>
+                <div><strong>Source:</strong> {donkeyMoodDebug.source}</div>
+                <div className="mood-debug-grid" aria-label="Mood image preview grid">
+                  {Object.entries(DONKEY_MOOD_IMAGES).map(([key, image]) => (
+                    <div key={key} className="mood-debug-preview">
+                      <img src={image} alt="" aria-hidden="true" />
+                      <span>{key}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            </>
           )}
 
           {/* Auto-loaded weather result */}
