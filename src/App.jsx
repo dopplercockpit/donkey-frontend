@@ -31,6 +31,7 @@ const KOFI_COFFEE_URL =
   import.meta.env.VITE_KOFI_COFFEE_URL || "https://ko-fi.com/weatherjackass";
 const KOFI_BEER_URL =
   import.meta.env.VITE_KOFI_BEER_URL || "https://ko-fi.com/weatherjackass";
+const MANUAL_LOCATION_STORAGE_KEY = "mister_donkey_manual_location";
 
 // WeatherAPI condition codes: https://www.weatherapi.com/docs/weather_conditions.json
 const WEATHER_THEMES = {
@@ -167,9 +168,11 @@ function App() {
 
   // Geolocation state
   const [geoEnabled, setGeoEnabled] = useState(true);
-  const [geoStatus, setGeoStatus] = useState("idle"); // idle|requesting|granted|denied|error|disabled
+  const [geoStatus, setGeoStatus] = useState("idle"); // idle|requesting|granted|manual|denied|error|disabled
   const [location, setLocation] = useState(null);
   const [cityName, setCityName] = useState(null);
+  const [manualLocationLoading, setManualLocationLoading] = useState(false);
+  const [manualLocationError, setManualLocationError] = useState("");
 
   // Session state
   const [sessionId, setSessionId] = useState(null);
@@ -428,10 +431,26 @@ function App() {
   }, [appendAutoWeatherMessage]);
 
   useEffect(() => {
-    if (geoStatus === "granted" && location && cityName && sessionId) {
+    if ((geoStatus === "granted" || geoStatus === "manual") && location && cityName && sessionId) {
       fetchAutoWeather(location, cityName, selectedTone, sessionId);
     }
-  }, [geoStatus, cityName, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [geoStatus, location, cityName, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!["denied", "disabled", "error", "unavailable"].includes(geoStatus)) return;
+    if (location && cityName) return;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(MANUAL_LOCATION_STORAGE_KEY) || "null");
+      if (saved?.name && saved?.lat != null && saved?.lon != null) {
+        setLocation({ lat: saved.lat, lon: saved.lon });
+        setCityName(saved.name);
+        setGeoStatus("manual");
+      }
+    } catch (err) {
+      console.warn("Failed to restore manual location", err);
+    }
+  }, [geoStatus, location, cityName]);
 
   const donkeyMoodDebug = currentWeatherResult ? getDonkeyMoodDebug(currentWeatherResult) : null;
   const donkeyMoodKey = donkeyMoodDebug?.moodKey || 'default';
@@ -447,6 +466,47 @@ function App() {
       fetchAutoWeather({ lat: city.lat, lon: city.lon }, city.name, selectedTone, sessionId);
     }
   }, [fetchAutoWeather, selectedTone, sessionId]);
+
+  const handleManualLocationSubmit = useCallback(async (query) => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    setManualLocationLoading(true);
+    setManualLocationError("");
+
+    try {
+      const res = await fetch(`${BASE_URL}/geo/resolve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: trimmed }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+
+      const nextLocation = { lat: data.lat, lon: data.lon };
+      const nextCityName = data.name || trimmed;
+
+      setLocation(nextLocation);
+      setCityName(nextCityName);
+      setGeoStatus("manual");
+
+      localStorage.setItem(MANUAL_LOCATION_STORAGE_KEY, JSON.stringify({
+        name: nextCityName,
+        lat: data.lat,
+        lon: data.lon,
+        query: trimmed,
+        saved_at: new Date().toISOString(),
+      }));
+    } catch (err) {
+      console.warn("Manual location lookup failed:", err);
+      setManualLocationError(
+        "Could not find that location. Try adding country or region, like '69004 France' or 'Detroit, MI'."
+      );
+    } finally {
+      setManualLocationLoading(false);
+    }
+  }, []);
 
   const handleGeoToggle = () => {
     const next = !geoEnabled;
@@ -507,6 +567,9 @@ function App() {
             cityName={cityName}
             onRetry={requestGeolocation}
             onToggle={handleGeoToggle}
+            onManualLocationSubmit={handleManualLocationSubmit}
+            manualLocationLoading={manualLocationLoading}
+            manualLocationError={manualLocationError}
           />
 
           <FavoriteCities
