@@ -641,6 +641,25 @@ function App() {
           />
         </div>
 
+        <div className="mobile-support-row" aria-label="Support Mister Donkey">
+          <SupportCard
+            variant="coffee"
+            image={kofiCoffeeDonkey}
+            href={KOFI_COFFEE_URL}
+            title="Buy Donkey a Coffee"
+            subtitle="Fuel the forecast."
+            ariaLabel="Buy Donkey a Coffee on Ko-Fi"
+          />
+          <SupportCard
+            variant="beer"
+            image={kofiBeerDonkey}
+            href={KOFI_BEER_URL}
+            title="Buy Donkey a Beer"
+            subtitle="For after the storm."
+            ariaLabel="Buy Donkey a Beer on Ko-Fi"
+          />
+        </div>
+
         <footer className="footer">
           Made by Doppler / Edward • <em>Powered by Mister Donkey</em>
           <span className="app-version">v: {APP_VERSION}</span>
