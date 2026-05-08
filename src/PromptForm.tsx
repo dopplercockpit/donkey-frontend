@@ -79,14 +79,20 @@ const PromptForm: React.FC<PromptFormProps> = ({
     if (location) payload.location = location;
     if (sessionId) payload.session_id = sessionId;
 
+    const controller = new AbortController();
+    const timeoutMs = 75000;
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+    let reqId: string | null = null;
+
     try {
       const res = await fetch(`${BASE_URL}/prompt/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
 
-      const reqId = res.headers.get("X-Request-ID");
+      reqId = res.headers.get("X-Request-ID");
       if (reqId) console.log(`🔑 [${reqId}] /prompt/stream connected`);
 
       if (!res.ok) {
@@ -105,6 +111,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
       let buffer = "";
       let accumulated = "";
       let currentEvent = "message";
+      let sawDone = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -162,6 +169,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
           }
 
           if (token === "[DONE]") {
+            sawDone = true;
             onPromptComplete?.(trimmed, accumulated);
             continue;
           }
@@ -172,13 +180,28 @@ const PromptForm: React.FC<PromptFormProps> = ({
           onStreamUpdate?.(accumulated);
         }
       }
+      if (!sawDone) {
+        if (accumulated.trim()) {
+          console.warn("Stream ended without [DONE]; completing with accumulated text.");
+          onPromptComplete?.(trimmed, accumulated);
+        } else {
+          throw { error: "Stream ended before the donkey said anything useful.", request_id: reqId };
+        }
+      }
     } catch (err: any) {
-      console.error("Error fetching weather:", err.error ?? err.message ?? err);
-      if (err.request_id) setErrorReqId(err.request_id);
-      const friendly = randomDonkeyError();
-      setErrorMessage(friendly);
-      onPromptError?.(friendly, err.request_id);
+      if (err.name === "AbortError") {
+        const friendly = "The donkey stared at the sky too long and timed out. Try again.";
+        setErrorMessage(friendly);
+        onPromptError?.(friendly, reqId ?? undefined);
+      } else {
+        console.error("Error fetching weather:", err.error ?? err.message ?? err);
+        if (err.request_id) setErrorReqId(err.request_id);
+        const friendly = randomDonkeyError();
+        setErrorMessage(friendly);
+        onPromptError?.(friendly, err.request_id);
+      }
     } finally {
+      window.clearTimeout(timeoutId);
       setLoading(false);
       onLoadingChange?.(false);
     }

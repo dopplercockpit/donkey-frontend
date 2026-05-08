@@ -1,11 +1,23 @@
 /* === App shell === */
 
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+}
+
+html {
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
+  overflow-x: clip;
 }
 
 #root {
@@ -13,6 +25,9 @@ body {
   margin: 0 auto;
   padding: 1rem;
   text-align: center;
+  box-sizing: border-box;
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
 }
 
 .app-error-fallback {
@@ -27,6 +42,36 @@ body {
 }
 
 /* === Page layout === */
+
+.page-wrapper,
+.main-content,
+.app-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.guide-selector-section,
+.prompt-wrapper,
+.weather-indicators,
+.hourly-wrap,
+.conv-root,
+.fav-row,
+.geo-controls,
+.manual-location-form,
+.mobile-support-row {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.hourly-wrap,
+.hourly-scroll,
+.chips-row {
+  max-width: 100%;
+  min-width: 0;
+}
 
 .page-wrapper {
   display: flex;
@@ -400,6 +445,24 @@ body {
   }
 }
 
+@media (max-width: 480px) {
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-card {
+    width: 100%;
+  }
+
+  .guide-image {
+    max-width: 88px;
+  }
+
+  .guide-description {
+    overflow-wrap: anywhere;
+  }
+}
+
 /* === Footer === */
 
 .footer {
@@ -444,11 +507,25 @@ body {
     overflow-x: hidden;
   }
 
+  #root {
+    padding: 0;
+  }
+
   .page-wrapper {
     padding: 0.5rem;
+    gap: 0;
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+
+  .main-content {
+    max-width: 100%;
+    min-width: 0;
   }
 
   .app-container {
+    max-width: 100%;
+    min-width: 0;
     padding-top: 0.75rem;
   }
 
