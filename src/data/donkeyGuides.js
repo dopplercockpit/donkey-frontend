@@ -88,9 +88,9 @@ export const DONKEY_GUIDES = [
     toneId: "mobster",
     title: "Mobster Donkey",
     image: mobsterDonkey,
-    description: "Nice picnic. Shame if the sky did something stupid.",
+    description: "Say! Nice picnic you got there, be a shame if something happened to it...",
     promptStyle:
-      "Use a wiseguy weather voice: funny menace, old-school crime movie parody, clear forecast, no real criminal instruction.",
+      "Use a wiseguy weather voice: funny menace, old-school crime movie parody, clear forecast, no real criminal instruction. Keep the vibe close to: Say! Nice picnic you got there, be a shame if something happened to it...",
   },
   {
     id: "doomsday",

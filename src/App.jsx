@@ -28,9 +28,9 @@ import donkeyDefaultMood from './assets/moods/donkey_default.png';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const KOFI_COFFEE_URL =
-  import.meta.env.VITE_KOFI_COFFEE_URL || "https://ko-fi.com/doppleredward";
+  import.meta.env.VITE_KOFI_COFFEE_URL || "https://ko-fi.com/weatherjackass";
 const KOFI_BEER_URL =
-  import.meta.env.VITE_KOFI_BEER_URL || "https://ko-fi.com/doppleredward";
+  import.meta.env.VITE_KOFI_BEER_URL || "https://ko-fi.com/weatherjackass";
 
 // WeatherAPI condition codes: https://www.weatherapi.com/docs/weather_conditions.json
 const WEATHER_THEMES = {
@@ -276,6 +276,24 @@ function App() {
         },
       ];
     });
+  }, []);
+
+  const handleWeatherData = useCallback((result) => {
+    if (result?.weather) {
+      setCurrentWeatherResult(result);
+    }
+
+    if (result?.metadata?.location) {
+      setCityName(result.metadata.location);
+    }
+
+    const coords = result?.metadata?.coords;
+    if (coords?.lat != null && coords?.lon != null) {
+      setLocation({
+        lat: coords.lat,
+        lon: coords.lon,
+      });
+    }
   }, []);
 
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
@@ -540,6 +558,7 @@ function App() {
             onStreamUpdate={handleStreamUpdate}
             onPromptComplete={handlePromptComplete}
             onPromptError={handlePromptError}
+            onWeatherData={handleWeatherData}
           />
         </div>
 

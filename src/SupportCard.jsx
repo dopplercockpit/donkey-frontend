@@ -3,7 +3,7 @@ import React from 'react';
 export default function SupportCard({
   variant = "coffee",
   image,
-  href = "https://ko-fi.com/doppleredward",
+  href = "https://ko-fi.com/weatherjackass",
   title = "Buy Donkey a Coffee",
   subtitle = "Keep the forecasts flowing.",
   ariaLabel = "Support Mister Donkey on Ko-Fi",

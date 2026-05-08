@@ -40,6 +40,7 @@ interface PromptFormProps {
   onStreamUpdate?: (assistantText: string) => void;
   onPromptComplete?: (userText: string, assistantText: string) => void;
   onPromptError?: (message: string, requestId?: string) => void;
+  onWeatherData?: (result: any) => void;
 }
 
 const PromptForm: React.FC<PromptFormProps> = ({
@@ -52,6 +53,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
   onStreamUpdate,
   onPromptComplete,
   onPromptError,
+  onWeatherData,
 }) => {
   const [input, setInput] = useState<string>("");
   const [streamText, setStreamText] = useState<string>("");
@@ -135,6 +137,16 @@ const PromptForm: React.FC<PromptFormProps> = ({
               if (meta.request_id) console.log(`🔑 [${meta.request_id}] stream metadata received`);
             } catch {
               // Metadata should never become visible response text.
+            }
+            continue;
+          }
+
+          if (currentEvent === "weather") {
+            try {
+              const weatherPayload = JSON.parse(token);
+              onWeatherData?.(weatherPayload);
+            } catch (err) {
+              console.warn("Failed to parse weather SSE payload", err);
             }
             continue;
           }
