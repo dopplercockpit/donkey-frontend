@@ -1,17 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PromptForm from './PromptForm';
 import GeoControls from './GeoControls';
 import SupportCard from './SupportCard';
 import ConversationHistory from './ConversationHistory';
 import HourlyForecast from './HourlyForecast';
 import FavoriteCities from './FavoriteCities';
-import ShareButton from './ShareButton';
+import WeatherIndicators from './WeatherIndicators';
 import GuideSelector from './components/GuideSelector';
 import OnboardingModal, { shouldShowOnboarding } from './components/OnboardingModal';
+import PwaUpdateToast from './components/PwaUpdateToast';
 import SkeletonWeatherCard from './components/SkeletonWeatherCard';
 import { getDonkeyGuideById } from './data/donkeyGuides';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
+import kofiCoffeeDonkey from './assets/kofi_coffee_donkey.png';
+import kofiBeerDonkey from './assets/kofi_beer_donkey.png';
 import donkeySunny from './assets/moods/donkey_sunny.png';
 import donkeyRainy from './assets/moods/donkey_rainy.png';
 import donkeySnowy from './assets/moods/donkey_snowy.png';
@@ -23,6 +26,10 @@ import donkeyAfterStorm from './assets/moods/donkey_after_storm.png';
 import donkeyDefaultMood from './assets/moods/donkey_default.png';
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const KOFI_COFFEE_URL =
+  import.meta.env.VITE_KOFI_COFFEE_URL || "https://ko-fi.com/doppleredward";
+const KOFI_BEER_URL =
+  import.meta.env.VITE_KOFI_BEER_URL || "https://ko-fi.com/doppleredward";
 
 // WeatherAPI condition codes: https://www.weatherapi.com/docs/weather_conditions.json
 const WEATHER_THEMES = {
@@ -130,6 +137,9 @@ const DONKEY_MOOD_IMAGES = {
   hot:         donkeyHot,
   thunder:     donkeyThunder,
   after_storm: donkeyAfterStorm,
+  // TODO: replace fallbacks when donkey_chilly.png and donkey_pleasant_night.png are added.
+  chilly:      donkeyDefaultMood,
+  pleasant_night: donkeyDefaultMood,
   default:     donkeyDefaultMood,
 };
 
@@ -161,15 +171,25 @@ function getDonkeyMoodKey(result) {
     ?? current.wind_speed ?? current.windSpeed
     ?? result.wind_speed ?? result.windSpeed
     ?? result.data?.current?.wind_speed ?? null;
+  const visibilityKm = current.visibility_km
+    ?? (current.visibility_m != null ? current.visibility_m / 1000 : null);
+  const isNight = current.is_day === false || current.is_day === 0;
+  const isMildNight = isNight
+    && temp !== null
+    && temp >= 12
+    && temp <= 25
+    && /clear|sunny|partly|cloud|overcast/.test(conditionText);
 
+  if (/after storm|rainbow|clearing|partly clear/.test(conditionText)) return 'after_storm';
   if (/thunder|lightning|storm/.test(conditionText)) return 'thunder';
   if (/snow|sleet|ice|freez|frost/.test(conditionText))  return 'snowy';
-  if (/fog|mist|haze|smoke/.test(conditionText))         return 'foggy';
+  if (/fog|mist|haze|smoke/.test(conditionText) || (visibilityKm !== null && visibilityKm <= 2)) return 'foggy';
   if (/heat|heatwave/.test(conditionText) || (temp !== null && temp >= 30)) return 'hot';
+  if (/chilly|cool/.test(conditionText) || (temp !== null && temp > 0 && temp <= 12)) return 'chilly';
   if (/wind|gust|bluster/.test(conditionText) || (wind !== null && wind >= 10)) return 'windy';
   if (/rain|drizzle|shower|precip/.test(conditionText))  return 'rainy';
+  if (isMildNight) return 'pleasant_night';
   if (/clear|sunny/.test(conditionText))                 return 'sunny';
-  if (/rainbow|clearing|partly clear/.test(conditionText)) return 'after_storm';
   return 'default';
 }
 
@@ -214,34 +234,97 @@ function App() {
   // toneId maps the guide choice to the backend TONE_PRESETS key
   const selectedTone = selectedGuide.toneId;
 
-  // Auto-loaded weather result
-  const [autoWeatherResult, setAutoWeatherResult] = useState(null);
+  // Structured weather state powers theme, hourly forecast, mood image, and indicators.
+  const [currentWeatherResult, setCurrentWeatherResult] = useState(null);
   const [autoWeatherLoading, setAutoWeatherLoading] = useState(false);
-  const [showAutoWeather, setShowAutoWeather] = useState(true);
+  const lastAutoMessageKeyRef = useRef(null);
 
   // PromptForm loading signal — lifted here only to drive the logo animation
   const [promptLoading, setPromptLoading] = useState(false);
 
-  // Conversation history — populated by explicit user prompts only (not auto-load)
+  // Conversation history — the single visible report / chat panel.
   const [conversationHistory, setConversationHistory] = useState([]);
 
-  // Apply weather theme whenever auto-weather result changes
+  // Apply weather theme whenever structured weather changes
   useEffect(() => {
-    if (autoWeatherResult) {
-      applyWeatherTheme(autoWeatherResult);
+    if (currentWeatherResult) {
+      applyWeatherTheme(currentWeatherResult);
     } else {
       const root = document.documentElement;
       Object.entries(DEFAULT_THEME).forEach(([prop, val]) => root.style.setProperty(prop, val));
     }
-  }, [autoWeatherResult]);
+  }, [currentWeatherResult]);
 
-  const handleConversationTurn = useCallback((userText, assistantText) => {
+  const appendAutoWeatherMessage = useCallback((data, city, tone) => {
+    const autoKey = `${city || "unknown"}|${tone || "default"}`;
+    const content = data.text_summary || data.summary || "Weather data loaded.";
+    if (!content || lastAutoMessageKeyRef.current === autoKey) return;
+    lastAutoMessageKeyRef.current = autoKey;
+    setConversationHistory(prev => [
+      ...prev.filter(msg => msg.source !== "auto"),
+      { role: "assistant", content, timestamp: Date.now(), source: "auto" },
+    ]);
+  }, []);
+
+  const handlePromptStart = useCallback((userText) => {
     const now = Date.now();
     setConversationHistory(prev => [
       ...prev,
-      { role: "user",      content: userText,     timestamp: now },
-      { role: "assistant", content: assistantText, timestamp: now },
+      { role: "user", content: userText, timestamp: now },
+      { role: "assistant", content: "", timestamp: now, source: "stream", streaming: true },
     ]);
+  }, []);
+
+  const handleStreamUpdate = useCallback((assistantText) => {
+    setConversationHistory(prev => {
+      const next = [...prev];
+      const idx = next.findLastIndex(msg => msg.role === "assistant" && msg.streaming);
+      if (idx === -1) return next;
+      next[idx] = { ...next[idx], content: assistantText, timestamp: Date.now() };
+      return next;
+    });
+  }, []);
+
+  const handlePromptComplete = useCallback((_userText, assistantText) => {
+    setConversationHistory(prev => {
+      const next = [...prev];
+      const idx = next.findLastIndex(msg => msg.role === "assistant" && msg.streaming);
+      if (idx === -1) return next;
+      next[idx] = {
+        ...next[idx],
+        content: assistantText || next[idx].content,
+        timestamp: Date.now(),
+        streaming: false,
+      };
+      return next;
+    });
+  }, []);
+
+  const handlePromptError = useCallback((message, requestId) => {
+    setConversationHistory(prev => {
+      const content = requestId ? `${message}\n\nDebug ID: ${requestId.slice(0, 8)}` : message;
+      const next = [...prev];
+      const idx = next.findLastIndex(msg => msg.role === "assistant" && msg.streaming);
+      if (idx !== -1) {
+        next[idx] = {
+          ...next[idx],
+          content,
+          timestamp: Date.now(),
+          source: "error",
+          streaming: false,
+        };
+        return next;
+      }
+      return [
+        ...prev,
+        {
+        role: "assistant",
+        content,
+        timestamp: Date.now(),
+        source: "error",
+        },
+      ];
+    });
   }, []);
 
   const randomTagline = donkeyTaglines[Math.floor(Math.random() * donkeyTaglines.length)];
@@ -333,7 +416,6 @@ function App() {
   // 3) Auto-weather fetch — fires once after location + city + session are ready
   const fetchAutoWeather = useCallback(async (loc, city, tone, sid) => {
     setAutoWeatherLoading(true);
-    setShowAutoWeather(true);
     try {
       const res = await fetch(`${BASE_URL}/prompt/structured`, {
         method: "POST",
@@ -351,13 +433,14 @@ function App() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setAutoWeatherResult(data);
+      setCurrentWeatherResult(data);
+      appendAutoWeatherMessage(data, city, tone);
     } catch (err) {
       console.error("🐴 Auto weather fetch failed:", err);
     } finally {
       setAutoWeatherLoading(false);
     }
-  }, []);
+  }, [appendAutoWeatherMessage]);
 
   useEffect(() => {
     if (geoStatus === "granted" && location && cityName && sessionId) {
@@ -365,7 +448,7 @@ function App() {
     }
   }, [geoStatus, cityName, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const donkeyMoodKey = autoWeatherResult ? getDonkeyMoodKey(autoWeatherResult) : 'default';
+  const donkeyMoodKey = currentWeatherResult ? getDonkeyMoodKey(currentWeatherResult) : 'default';
   const donkeyMoodImage = DONKEY_MOOD_IMAGES[donkeyMoodKey] || DONKEY_MOOD_IMAGES.default || donkeyLogo;
 
   const handleFavoriteSelect = useCallback((city) => {
@@ -399,7 +482,14 @@ function App() {
     )}
     <div className="page-wrapper">
       <div className="sidebar ad-left">
-        <SupportCard />
+        <SupportCard
+          variant="coffee"
+          image={kofiCoffeeDonkey}
+          href={KOFI_COFFEE_URL}
+          title="Buy Donkey a Coffee"
+          subtitle="Fuel the forecast."
+          ariaLabel="Buy Donkey a Coffee on Ko-Fi"
+        />
       </div>
 
       <div className="main-content">
@@ -436,7 +526,7 @@ function App() {
             onSelectCity={handleFavoriteSelect}
           />
 
-          {autoWeatherResult && (
+          {currentWeatherResult && (
             <img
               src={donkeyMoodImage}
               alt={`Mister Donkey mood: ${donkeyMoodKey}`}
@@ -448,34 +538,14 @@ function App() {
           {autoWeatherLoading && (
             <SkeletonWeatherCard label="Loading automatic weather report" />
           )}
-          {showAutoWeather && autoWeatherResult && !autoWeatherLoading && (
-            <div className="auto-weather-card">
-              <div className="auto-weather-actions">
-                {autoWeatherResult.text_summary && (
-                  <ShareButton textSummary={autoWeatherResult.text_summary} />
-                )}
-                <button
-                  className="auto-weather-dismiss"
-                  onClick={() => setShowAutoWeather(false)}
-                  aria-label="Dismiss auto weather result"
-                >
-                  ×
-                </button>
-              </div>
-              <h3 className="auto-weather-title">🐴 Mister Donkey's Auto-Sniff Report</h3>
-              <div className="auto-weather-content">
-                {autoWeatherResult.text_summary
-                  ? autoWeatherResult.text_summary.split(/\n\n+/).map((para, i) => (
-                      <p key={i}>{para}</p>
-                    ))
-                  : autoWeatherResult.summary || "Weather data loaded!"}
-              </div>
-            </div>
-          )}
 
           {/* Hourly strip — sourced from the auto-weather structured response */}
-          {autoWeatherResult?.weather?.hourly?.length > 0 && (
-            <HourlyForecast hourly={autoWeatherResult.weather.hourly} />
+          {currentWeatherResult?.weather?.hourly?.length > 0 && (
+            <HourlyForecast hourly={currentWeatherResult.weather.hourly} />
+          )}
+
+          {currentWeatherResult?.weather && (
+            <WeatherIndicators weather={currentWeatherResult.weather} />
           )}
 
           <ConversationHistory
@@ -488,9 +558,11 @@ function App() {
             cityName={cityName}
             selectedTone={selectedTone}
             sessionId={sessionId}
-            onWeatherResult={setAutoWeatherResult}
-            onConversationTurn={handleConversationTurn}
             onLoadingChange={setPromptLoading}
+            onPromptStart={handlePromptStart}
+            onStreamUpdate={handleStreamUpdate}
+            onPromptComplete={handlePromptComplete}
+            onPromptError={handlePromptError}
           />
         </div>
 
@@ -500,11 +572,17 @@ function App() {
       </div>
 
       <div className="sidebar ad-right">
-        <div className="sponsor-slot">
-          🌦️ Sponsor slot — coming soon
-        </div>
+        <SupportCard
+          variant="beer"
+          image={kofiBeerDonkey}
+          href={KOFI_BEER_URL}
+          title="Buy Donkey a Beer"
+          subtitle="For after the storm."
+          ariaLabel="Buy Donkey a Beer on Ko-Fi"
+        />
       </div>
     </div>
+    <PwaUpdateToast />
     </>
   );
 }

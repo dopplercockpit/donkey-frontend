@@ -6,6 +6,8 @@ import drillSergeantDonkey from "../assets/guides/drill_sergeant_donkey.png";
 import fluidDonkey        from "../assets/guides/fluid_donkey.png";
 import detectiveDonkey    from "../assets/guides/detective_donkey.png";
 import dramaDonkey        from "../assets/guides/drama_donkey.png";
+import mobsterDonkey      from "../assets/guides/mobster_donkey.png";
+import doomsdayDonkey     from "../assets/guides/doomsday_donkey.png";
 
 // toneId maps to the backend TONE_PRESETS key used in /prompt/stream requests.
 export const DONKEY_GUIDES = [
@@ -80,6 +82,24 @@ export const DONKEY_GUIDES = [
     description: "Hark. The forecast arrives, emotionally overdressed.",
     promptStyle:
       "Use a theatrical Shakespearean/drama voice: dramatic, poetic, funny, and clear. Do not make it too hard to understand.",
+  },
+  {
+    id: "mobster",
+    toneId: "mobster",
+    title: "Mobster Donkey",
+    image: mobsterDonkey,
+    description: "Nice picnic. Shame if the sky did something stupid.",
+    promptStyle:
+      "Use a wiseguy weather voice: funny menace, old-school crime movie parody, clear forecast, no real criminal instruction.",
+  },
+  {
+    id: "doomsday",
+    toneId: "doomsday",
+    title: "Doomsday Donkey",
+    image: doomsdayDonkey,
+    description: "Every forecast is the end times, but with wind direction.",
+    promptStyle:
+      "Use a doomsday prepper voice: apocalypse melodrama, funny overreaction, accurate and practical weather advice.",
   },
 ];
 

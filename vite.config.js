@@ -15,13 +15,24 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: ({ request }) =>
-              ['style', 'script', 'worker', 'image', 'font'].includes(request.destination),
+              ['image', 'font'].includes(request.destination),
             handler: 'CacheFirst',
             options: {
-              cacheName: 'md-static-assets',
+              cacheName: 'md-media-assets',
               expiration: {
                 maxEntries: 80,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
+          {
+            urlPattern: ({ request }) => ['style'].includes(request.destination),
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'md-style-assets',
+              expiration: {
+                maxEntries: 40,
+                maxAgeSeconds: 60 * 60 * 24 * 7,
               },
             },
           },

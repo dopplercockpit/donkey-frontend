@@ -107,12 +107,24 @@
   border-bottom-left-radius: 3px;
 }
 
+.conv-source-label {
+  color: var(--accent-secondary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 /* === Bubble content === */
 
 .conv-content {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+}
+
+.conv-content .stream-cursor {
+  align-self: flex-start;
 }
 
 .conv-para {

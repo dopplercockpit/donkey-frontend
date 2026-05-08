@@ -1,25 +1,21 @@
-// PromptForm.tsx
 import React, { useState } from "react";
 import "./PromptForm.css";
-import ToneSelector from "./ToneSelector";
-import WeatherIndicators from "./WeatherIndicators";
 import VitaminDCard from "./VitaminDCard";
-import ShareButton from "./ShareButton";
 import SkeletonWeatherCard from "./components/SkeletonWeatherCard";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const DONKEY_ERRORS = [
   "Well, this is embarrassing. My weather magic fizzled. Try again. 🌧️",
-  "I looked outside and saw nothing. Literally nothing. One more try? 🫥",
+  "I looked outside and saw nothing. Literally nothing. One more try?",
   "The clouds are unresponsive today. Just like my ex. Try once more? ☁️",
   "Something broke. Shocking, I know. Hit that button again and act surprised. 💀",
   "My crystal ball is buffering. This is fine. Totally fine. Try again? 🔮",
   "Error 404: Weather not found. The forecast ghosted us. Again? 👻",
   "I consulted the atmosphere and it said 'not now'. Rude. Retry? 🙄",
-  "The forecast API went for an unscheduled smoke break. Try again. 🚬",
+  "The forecast API went for an unscheduled smoke break. Try again.",
   "My meteorological instincts misfired spectacularly. Once more? 🎯",
-  "Even I have bad days. This is one of them. One more shot? 🫠",
+  "Even I have bad days. This is one of them. One more shot?",
 ];
 
 function randomDonkeyError(): string {
@@ -27,58 +23,58 @@ function randomDonkeyError(): string {
 }
 
 const CHIPS = [
-  { label: "🌂 Need an umbrella?",        prompt: "Do I need an umbrella today?" },
-  { label: "👔 What should I wear?",      prompt: "What should I wear today based on the weather?" },
-  { label: "💨 Air quality check",         prompt: "How's the air quality right now?" },
-  { label: "🌅 Best time to go outside",  prompt: "What's the best time to go outside today?" },
-  { label: "🌡️ Feels-like vs actual",    prompt: "How does the feels-like temperature compare to the actual temperature right now?" },
+  { label: "☂️ Need an umbrella?", prompt: "Do I need an umbrella today?" },
+  { label: "👔 What should I wear?", prompt: "What should I wear today based on the weather?" },
+  { label: "💨 Air quality check", prompt: "How's the air quality right now?" },
+  { label: "🌅 Best time to go outside", prompt: "What's the best time to go outside today?" },
+  { label: "🌡️ Feels-like vs actual", prompt: "How does the feels-like temperature compare to the actual temperature right now?" },
 ] as const;
 
 interface PromptFormProps {
   location?: { lat: number; lon: number } | null;
   cityName?: string | null;
   selectedTone: string;
-  setSelectedTone?: (tone: string) => void;
   sessionId?: string | null;
-  onWeatherResult?: (result: any) => void;
-  onConversationTurn?: (userText: string, assistantText: string) => void;
   onLoadingChange?: (loading: boolean) => void;
+  onPromptStart?: (userText: string) => void;
+  onStreamUpdate?: (assistantText: string) => void;
+  onPromptComplete?: (userText: string, assistantText: string) => void;
+  onPromptError?: (message: string, requestId?: string) => void;
 }
 
 const PromptForm: React.FC<PromptFormProps> = ({
   location = null,
   cityName = null,
   selectedTone,
-  setSelectedTone = () => {},
   sessionId = null,
-  onWeatherResult,
-  onConversationTurn,
   onLoadingChange,
+  onPromptStart,
+  onStreamUpdate,
+  onPromptComplete,
+  onPromptError,
 }) => {
   const [input, setInput] = useState<string>("");
-  const [weatherResult, setWeatherResult] = useState<any | null>(null);
   const [streamText, setStreamText] = useState<string>("");
-  const [streaming, setStreaming] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [errorReqId, setErrorReqId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const submitPrompt = async (text: string) => {
-    if (!text.trim()) return;
+    const trimmed = text.trim();
+    if (!trimmed) return;
 
     setLoading(true);
-    setStreaming(true);
     setStreamText("");
-    onLoadingChange?.(true);
     setErrorMessage("");
     setErrorReqId(null);
-    setWeatherResult(null);
+    onLoadingChange?.(true);
+    onPromptStart?.(trimmed);
 
-    const payload: Record<string, any> = {
-      prompt: text.trim(),
+    const payload: Record<string, unknown> = {
+      prompt: trimmed,
       tone: selectedTone,
     };
-    if (location)  payload.location   = location;
+    if (location) payload.location = location;
     if (sessionId) payload.session_id = sessionId;
 
     try {
@@ -93,7 +89,11 @@ const PromptForm: React.FC<PromptFormProps> = ({
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        const apiErr = { error: errData.error || `HTTP ${res.status}`, code: errData.code, request_id: reqId ?? errData.request_id };
+        const apiErr = {
+          error: errData.error || `HTTP ${res.status}`,
+          code: errData.code,
+          request_id: reqId ?? errData.request_id,
+        };
         if (apiErr.request_id) setErrorReqId(apiErr.request_id);
         throw apiErr;
       }
@@ -102,6 +102,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
       const decoder = new TextDecoder();
       let buffer = "";
       let accumulated = "";
+      let currentEvent = "message";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -111,36 +112,60 @@ const PromptForm: React.FC<PromptFormProps> = ({
         const lines = buffer.split("\n");
         buffer = lines.pop() ?? "";
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const token = line.slice(6);
-            if (token === "[DONE]") {
-              // Stream finished — promote to weatherResult
-              const synth = { text_summary: accumulated, summary: accumulated };
-              setWeatherResult(synth);
-              if (onWeatherResult) onWeatherResult(synth);
-              onConversationTurn?.(text.trim(), accumulated);
-              setStreaming(false);
-            } else {
-              const unescaped = token.replace(/\\n/g, "\n");
-              accumulated += unescaped;
-              setStreamText(accumulated);
-            }
-          } else if (line.startsWith("event: error")) {
-            // next data line will have the error JSON — handled next iteration
-          } else if (line.startsWith("data: ") === false && line.includes('"error"')) {
-            try {
-              const errObj = JSON.parse(line.replace(/^data:\s*/, ""));
-              throw { error: errObj.error, request_id: reqId };
-            } catch { /* ignore parse failures */ }
+        for (const rawLine of lines) {
+          const line = rawLine.replace(/\r$/, "");
+
+          if (line === "") {
+            currentEvent = "message";
+            continue;
           }
+
+          if (line.startsWith("event: ")) {
+            currentEvent = line.slice(7).trim() || "message";
+            continue;
+          }
+
+          if (!line.startsWith("data: ")) continue;
+
+          const token = line.slice(6);
+
+          if (currentEvent === "meta") {
+            try {
+              const meta = JSON.parse(token);
+              if (meta.request_id) console.log(`🔑 [${meta.request_id}] stream metadata received`);
+            } catch {
+              // Metadata should never become visible response text.
+            }
+            continue;
+          }
+
+          if (currentEvent === "error") {
+            let streamError: any = { error: "Stream failed", request_id: reqId };
+            try {
+              streamError = { ...streamError, ...JSON.parse(token) };
+            } catch {
+              streamError.error = token;
+            }
+            throw streamError;
+          }
+
+          if (token === "[DONE]") {
+            onPromptComplete?.(trimmed, accumulated);
+            continue;
+          }
+
+          const unescaped = token.replace(/\\n/g, "\n");
+          accumulated += unescaped;
+          setStreamText(accumulated);
+          onStreamUpdate?.(accumulated);
         }
       }
     } catch (err: any) {
       console.error("Error fetching weather:", err.error ?? err.message ?? err);
       if (err.request_id) setErrorReqId(err.request_id);
-      setErrorMessage(randomDonkeyError());
-      setStreaming(false);
+      const friendly = randomDonkeyError();
+      setErrorMessage(friendly);
+      onPromptError?.(friendly, err.request_id);
     } finally {
       setLoading(false);
       onLoadingChange?.(false);
@@ -159,8 +184,6 @@ const PromptForm: React.FC<PromptFormProps> = ({
 
   return (
     <div className="prompt-wrapper">
-      <ToneSelector selectedTone={selectedTone} onToneChange={setSelectedTone} />
-
       {cityName && (
         <div className="location-badge" id="prompt-location-badge">
           📍 {cityName}
@@ -198,7 +221,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
         </button>
       </form>
 
-      {loading && !streamText && !weatherResult && !errorMessage && (
+      {loading && !streamText && !errorMessage && (
         <SkeletonWeatherCard label="Loading donkey response" />
       )}
 
@@ -206,49 +229,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
         <div className="error-banner" role="alert">
           ⚠️ {errorMessage}
           {errorReqId && (
-            <span className="error-req-id"> · ID: {errorReqId.slice(0, 8)}</span>
-          )}
-        </div>
-      )}
-
-      {/* Streaming response — shown while tokens are arriving */}
-      {streaming && (
-        <div className="weather-response stream-active">
-          <div className="response-summary">
-            {streamText.split(/\n\n+/).map((para, i) => (
-              <p key={i} className="summary-para">{para}</p>
-            ))}
-            <span className="stream-cursor" aria-hidden="true">▋</span>
-          </div>
-        </div>
-      )}
-
-      {/* Completed response — shown once stream finishes */}
-      {!streaming && weatherResult && (
-        <div className="weather-response">
-          <div className="response-header">
-            {weatherResult.metadata?.location && (
-              <p className="response-location">
-                📍 {weatherResult.metadata.location}
-              </p>
-            )}
-            {weatherResult.text_summary && (
-              <ShareButton textSummary={weatherResult.text_summary} />
-            )}
-          </div>
-
-          <div className="response-summary">
-            {weatherResult.text_summary
-              ? weatherResult.text_summary.split(/\n\n+/).map((para: string, i: number) => (
-                  <p key={i} className="summary-para">{para}</p>
-                ))
-              : weatherResult.summary && (
-                  <p className="summary-para">{weatherResult.summary}</p>
-                )}
-          </div>
-
-          {weatherResult.weather && (
-            <WeatherIndicators weather={weatherResult.weather} />
+            <span className="error-req-id"> · Debug ID: {errorReqId.slice(0, 8)}</span>
           )}
         </div>
       )}

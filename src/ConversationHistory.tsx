@@ -5,6 +5,8 @@ export interface ConversationMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: number;
+  source?: "auto" | "stream" | "error";
+  streaming?: boolean;
 }
 
 interface Props {
@@ -40,10 +42,14 @@ export default function ConversationHistory({ messages, onClear }: Props) {
         {messages.map((msg, i) => (
           <div key={i} className={`conv-row conv-row--${msg.role}`}>
             <div className={`conv-bubble conv-bubble--${msg.role}`}>
+              {msg.source === "auto" && (
+                <span className="conv-source-label">Auto-Sniff Report</span>
+              )}
               <div className="conv-content">
-                {msg.content.split(/\n\n+/).map((para, j) => (
+                {(msg.content || "…").split(/\n\n+/).map((para, j) => (
                   <p key={j} className="conv-para">{para}</p>
                 ))}
+                {msg.streaming && <span className="stream-cursor" aria-hidden="true">▌</span>}
               </div>
               <time className="conv-ts" dateTime={new Date(msg.timestamp).toISOString()}>
                 {formatTime(msg.timestamp)}

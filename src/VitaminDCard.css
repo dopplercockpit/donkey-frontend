@@ -167,6 +167,22 @@
   margin: 0 0 var(--space-md);
 }
 
+.vitd-context-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: var(--space-md);
+}
+
+.vitd-context-row span {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  padding: 0.2rem 0.55rem;
+}
+
 /* === Stats grid === */
 
 .vitd-stats {
@@ -211,6 +227,13 @@
 .vitd-skin-used {
   font-size: var(--fs-sm);
   color: var(--text-muted);
+  margin: 0 0 var(--space-xs);
+}
+
+.vitd-safety-note {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
   margin: 0;
 }
 

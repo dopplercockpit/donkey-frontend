@@ -58,8 +58,8 @@ body {
 /* === Logo === */
 
 .logo {
-  max-width: 720px;
-  width: 95%;
+  max-width: 540px;
+  width: 78%;
   margin: 0 auto 1.5rem;
   display: block;
   border: 2px solid var(--accent-primary);
@@ -191,6 +191,34 @@ body {
   box-shadow: var(--shadow-card);
 }
 
+.support-card--thumbnail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+}
+
+.support-card--thumbnail:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 6px 18px rgba(232, 131, 74, 0.22);
+}
+
+.support-card-img {
+  display: block;
+  width: 100%;
+  max-width: 128px;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: calc(var(--radius) - 2px);
+}
+
+.support-card-title,
 .support-card-heading {
   font-weight: 700;
   color: var(--text-primary);
@@ -198,10 +226,12 @@ body {
   font-size: var(--fs-md);
 }
 
+.support-card-subtitle,
 .support-card-body {
   color: var(--text-muted);
   font-size: var(--fs-sm);
-  margin: 0 0 var(--space-sm);
+  margin: 0;
+  line-height: 1.35;
 }
 
 .kofi-btn {
@@ -217,18 +247,6 @@ body {
 }
 .kofi-btn:hover {
   opacity: 0.88;
-}
-
-/* === Sponsor slot === */
-
-.sponsor-slot {
-  background: var(--bg-secondary);
-  border: 1px dashed var(--border-color);
-  border-radius: var(--radius);
-  padding: var(--space-md);
-  text-align: center;
-  color: var(--text-muted);
-  font-size: var(--fs-sm);
 }
 
 /* === Guide selector === */
@@ -385,6 +403,11 @@ body {
 
   .donkey-mood {
     max-width: 150px;
+  }
+
+  .logo {
+    max-width: 430px;
+    width: 88%;
   }
 
   .title {

@@ -28,6 +28,10 @@ interface VDResult {
   cloud_factor: number;
   skin_type_label: string;
   cloud_cover_pct: number;
+  protection_after_minutes?: number | null;
+  sun_safety_note?: string;
+  exposure_window_label?: string;
+  day_phase?: string;
 }
 
 interface VitaminDCardProps {
@@ -128,6 +132,13 @@ export default function VitaminDCard({ location, sessionId }: VitaminDCardProps)
           </div>
 
           <p className="vitd-recommendation">{result.recommendation}</p>
+          <div className="vitd-context-row">
+            <span>Current conditions</span>
+            {result.day_phase && <span>Phase: {result.day_phase}</span>}
+            {result.protection_after_minutes !== undefined && result.protection_after_minutes !== null && (
+              <span>Protect after: {result.protection_after_minutes} min</span>
+            )}
+          </div>
 
           {/* Stats grid */}
           <div className="vitd-stats">
@@ -136,7 +147,7 @@ export default function VitaminDCard({ location, sessionId }: VitaminDCardProps)
               <span className="vitd-stat-value">
                 {result.synthesis_minutes !== null ? `${result.synthesis_minutes} min` : "N/A"}
               </span>
-              <span className="vitd-stat-label">Exposure needed</span>
+              <span className="vitd-stat-label">{result.exposure_window_label || "Useful window"}</span>
             </div>
             <div className="vitd-stat">
               <span className="vitd-stat-icon">🔆</span>
@@ -156,6 +167,10 @@ export default function VitaminDCard({ location, sessionId }: VitaminDCardProps)
           </div>
 
           <p className="vitd-skin-used">{result.skin_type_label}</p>
+          <p className="vitd-safety-note">
+            {result.sun_safety_note ||
+              "Vitamin D estimates are approximate. Avoid burning. Sunscreen after the useful exposure window is not defeat; it is not being a crispy idiot."}
+          </p>
         </div>
       )}
     </div>
