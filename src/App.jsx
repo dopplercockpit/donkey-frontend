@@ -8,10 +8,10 @@ import FavoriteCities from './FavoriteCities';
 import WeatherIndicators from './WeatherIndicators';
 import GuideSelector from './components/GuideSelector';
 import OnboardingModal, { shouldShowOnboarding } from './components/OnboardingModal';
-import PwaUpdateToast from './components/PwaUpdateToast';
 import SkeletonWeatherCard from './components/SkeletonWeatherCard';
 import { getDonkeyGuideById } from './data/donkeyGuides';
 import { getDonkeyMoodDebug } from './utils/weatherMood';
+import { APP_VERSION } from './version';
 import './App.css';
 import donkeyLogo from './assets/mister_donkey_logo.png';
 import kofiCoffeeDonkey from './assets/kofi_coffee_donkey.png';
@@ -311,6 +311,22 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (import.meta.env.DEV || localStorage.getItem("md_debug_cache") === "true") {
+      window.mdClearCaches = async function mdClearCaches() {
+        if ("serviceWorker" in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map(registration => registration.unregister()));
+        }
+        if ("caches" in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(key => caches.delete(key)));
+        }
+        location.reload();
+      };
+    }
+  }, []);
+
   // Persist guide selection
   useEffect(() => {
     localStorage.setItem("misterDonkeyGuide", selectedGuideId);
@@ -564,6 +580,7 @@ function App() {
 
         <footer className="footer">
           Made by Doppler / Edward • <em>Powered by Mister Donkey</em>
+          <span className="app-version">v: {APP_VERSION}</span>
         </footer>
       </div>
 
@@ -578,7 +595,6 @@ function App() {
         />
       </div>
     </div>
-    <PwaUpdateToast />
     </>
   );
 }

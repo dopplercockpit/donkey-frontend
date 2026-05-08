@@ -409,6 +409,13 @@ body {
   text-align: center;
 }
 
+.app-version {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--text-muted) 72%, transparent);
+}
+
 /* === App container === */
 
 .app-container {
