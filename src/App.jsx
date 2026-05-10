@@ -36,6 +36,28 @@ const KOFI_BEER_URL =
 const MANUAL_LOCATION_STORAGE_KEY = "mister_donkey_manual_location";
 const TEMP_UNIT_STORAGE_KEY = "mister_donkey_temp_unit";
 
+function inferDefaultTempUnit() {
+  const saved = localStorage.getItem(TEMP_UNIT_STORAGE_KEY);
+  if (saved === "C" || saved === "F") return saved;
+
+  const locales = Array.isArray(navigator.languages) && navigator.languages.length > 0
+    ? navigator.languages
+    : [navigator.language].filter(Boolean);
+
+  const normalizedLocales = locales
+    .filter(Boolean)
+    .map((locale) => locale.toLowerCase());
+
+  const usesFahrenheit = normalizedLocales.some((locale) => {
+    return (
+      locale === "en-us" ||
+      locale.endsWith("-us")
+    );
+  });
+
+  return usesFahrenheit ? "F" : "C";
+}
+
 // WeatherAPI condition codes: https://www.weatherapi.com/docs/weather_conditions.json
 const WEATHER_THEMES = {
   // Clear / sunny
@@ -199,10 +221,7 @@ function App() {
   // PromptForm loading signal — lifted here only to drive the logo animation
   const [promptLoading, setPromptLoading] = useState(false);
 
-  const [tempUnit, setTempUnit] = useState(() => {
-    const stored = localStorage.getItem(TEMP_UNIT_STORAGE_KEY);
-    return stored === "F" ? "F" : "C";
-  });
+  const [tempUnit, setTempUnit] = useState(inferDefaultTempUnit);
 
   // Conversation history — the single visible report / chat panel.
   const [conversationHistory, setConversationHistory] = useState([]);

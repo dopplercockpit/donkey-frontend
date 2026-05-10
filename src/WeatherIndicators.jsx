@@ -12,6 +12,22 @@ function Indicator({ label, value, icon }) {
   );
 }
 
+function normalizeIcon(icon, fallback) {
+  if (!icon || typeof icon !== "string") return fallback;
+
+  // If an API/backend ever sends a literal escaped unicode string,
+  // try to decode it. If decoding fails, fall back safely.
+  if (icon.includes("\\u")) {
+    try {
+      return JSON.parse(`"${icon.replace(/"/g, '\\"')}"`);
+    } catch {
+      return fallback;
+    }
+  }
+
+  return icon;
+}
+
 export default function WeatherIndicators({ weather, tempUnit = "C" }) {
   if (!weather?.current) return null;
   const c = weather.current;
@@ -46,13 +62,17 @@ export default function WeatherIndicators({ weather, tempUnit = "C" }) {
 
   return (
     <div className="weather-indicators" role="list">
-      <Indicator icon={c.icon || "\uD83C\uDF21\uFE0F"} label="Conditions" value={conditions} />
-      <Indicator icon="\uD83C\uDF21\uFE0F" label="Temperature" value={tempDisplay} />
-      {feelsLike && <Indicator icon="\uD83E\uDD14" label="Feels like" value={feelsLike} />}
-      {humidity && <Indicator icon="\uD83D\uDCA7" label="Humidity" value={humidity} />}
-      {wind && <Indicator icon="\uD83D\uDCA8" label="Wind" value={wind} />}
-      {precip && <Indicator icon="\u2614" label="Precip chance" value={precip} />}
-      {airQuality && <Indicator icon="\uD83C\uDF3F" label="Air quality" value={airQuality} />}
+      <Indicator
+        icon={normalizeIcon(c.icon, "🌡️")}
+        label="Conditions"
+        value={conditions}
+      />
+      <Indicator icon="🌡️" label="Temperature" value={tempDisplay} />
+      {feelsLike && <Indicator icon="🤔" label="Feels like" value={feelsLike} />}
+      {humidity && <Indicator icon="💧" label="Humidity" value={humidity} />}
+      {wind && <Indicator icon="💨" label="Wind" value={wind} />}
+      {precip && <Indicator icon="☔" label="Precip chance" value={precip} />}
+      {airQuality && <Indicator icon="🌿" label="Air quality" value={airQuality} />}
     </div>
   );
 }
