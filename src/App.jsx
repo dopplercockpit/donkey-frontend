@@ -9,6 +9,8 @@ import WeatherIndicators from './WeatherIndicators';
 import GuideSelector from './components/GuideSelector';
 import OnboardingModal, { shouldShowOnboarding } from './components/OnboardingModal';
 import SkeletonWeatherCard from './components/SkeletonWeatherCard';
+import UnitToggle from './components/UnitToggle';
+import VitaminDCard from './VitaminDCard';
 import { getDonkeyGuideById } from './data/donkeyGuides';
 import { getDonkeyMoodDebug } from './utils/weatherMood';
 import { APP_VERSION } from './version';
@@ -32,6 +34,7 @@ const KOFI_COFFEE_URL =
 const KOFI_BEER_URL =
   import.meta.env.VITE_KOFI_BEER_URL || "https://ko-fi.com/weatherjackass";
 const MANUAL_LOCATION_STORAGE_KEY = "mister_donkey_manual_location";
+const TEMP_UNIT_STORAGE_KEY = "mister_donkey_temp_unit";
 
 // WeatherAPI condition codes: https://www.weatherapi.com/docs/weather_conditions.json
 const WEATHER_THEMES = {
@@ -196,6 +199,11 @@ function App() {
   // PromptForm loading signal — lifted here only to drive the logo animation
   const [promptLoading, setPromptLoading] = useState(false);
 
+  const [tempUnit, setTempUnit] = useState(() => {
+    const stored = localStorage.getItem(TEMP_UNIT_STORAGE_KEY);
+    return stored === "F" ? "F" : "C";
+  });
+
   // Conversation history — the single visible report / chat panel.
   const [conversationHistory, setConversationHistory] = useState([]);
 
@@ -335,6 +343,10 @@ function App() {
     localStorage.setItem("misterDonkeyGuide", selectedGuideId);
   }, [selectedGuideId]);
 
+  useEffect(() => {
+    localStorage.setItem(TEMP_UNIT_STORAGE_KEY, tempUnit);
+  }, [tempUnit]);
+
   // 1) Session ID — create or restore from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("mister_donkey_session_id");
@@ -413,6 +425,7 @@ function App() {
           location: loc,
           tone,
           session_id: sid,
+          temp_unit: tempUnit,
           auto: true,
         }),
       });
@@ -428,7 +441,7 @@ function App() {
     } finally {
       setAutoWeatherLoading(false);
     }
-  }, [appendAutoWeatherMessage]);
+  }, [appendAutoWeatherMessage, tempUnit]);
 
   useEffect(() => {
     if ((geoStatus === "granted" || geoStatus === "manual") && location && cityName && sessionId) {
@@ -556,11 +569,6 @@ function App() {
           <h1 className="title">weather from a jackass ❄️☀️</h1>
           <p className="subtitle">{randomTagline}</p>
 
-          <GuideSelector
-            selectedGuideId={selectedGuideId}
-            onSelectGuide={setSelectedGuideId}
-          />
-
           <GeoControls
             geoStatus={geoStatus}
             geoEnabled={geoEnabled}
@@ -571,6 +579,8 @@ function App() {
             manualLocationLoading={manualLocationLoading}
             manualLocationError={manualLocationError}
           />
+
+          <UnitToggle tempUnit={tempUnit} onChange={setTempUnit} />
 
           <FavoriteCities
             cityName={cityName}
@@ -615,29 +625,37 @@ function App() {
 
           {/* Hourly strip — sourced from the auto-weather structured response */}
           {currentWeatherResult?.weather?.hourly?.length > 0 && (
-            <HourlyForecast hourly={currentWeatherResult.weather.hourly} />
+            <HourlyForecast hourly={currentWeatherResult.weather.hourly} tempUnit={tempUnit} />
           )}
 
           {currentWeatherResult?.weather && (
-            <WeatherIndicators weather={currentWeatherResult.weather} />
+            <WeatherIndicators weather={currentWeatherResult.weather} tempUnit={tempUnit} />
           )}
-
-          <ConversationHistory
-            messages={conversationHistory}
-            onClear={() => setConversationHistory([])}
-          />
 
           <PromptForm
             location={location}
             cityName={cityName}
             selectedTone={selectedTone}
             sessionId={sessionId}
+            tempUnit={tempUnit}
             onLoadingChange={setPromptLoading}
             onPromptStart={handlePromptStart}
             onStreamUpdate={handleStreamUpdate}
             onPromptComplete={handlePromptComplete}
             onPromptError={handlePromptError}
             onWeatherData={handleWeatherData}
+          />
+
+          <ConversationHistory
+            messages={conversationHistory}
+            onClear={() => setConversationHistory([])}
+          />
+
+          <VitaminDCard location={location} sessionId={sessionId} />
+
+          <GuideSelector
+            selectedGuideId={selectedGuideId}
+            onSelectGuide={setSelectedGuideId}
           />
         </div>
 

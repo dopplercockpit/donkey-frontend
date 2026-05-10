@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./PromptForm.css";
-import VitaminDCard from "./VitaminDCard";
 import SkeletonWeatherCard from "./components/SkeletonWeatherCard";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -35,6 +34,7 @@ interface PromptFormProps {
   cityName?: string | null;
   selectedTone: string;
   sessionId?: string | null;
+  tempUnit?: "C" | "F";
   onLoadingChange?: (loading: boolean) => void;
   onPromptStart?: (userText: string) => void;
   onStreamUpdate?: (assistantText: string) => void;
@@ -48,6 +48,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
   cityName = null,
   selectedTone,
   sessionId = null,
+  tempUnit = "C",
   onLoadingChange,
   onPromptStart,
   onStreamUpdate,
@@ -75,6 +76,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
     const payload: Record<string, unknown> = {
       prompt: trimmed,
       tone: selectedTone,
+      temp_unit: tempUnit,
     };
     if (location) payload.location = location;
     if (sessionId) payload.session_id = sessionId;
@@ -269,7 +271,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
         </div>
       )}
 
-      <VitaminDCard location={location} sessionId={sessionId} />
+      {/* VitaminDCard moved to App.jsx so the primary prompt flow stays compact on mobile. */}
     </div>
   );
 };
