@@ -1,13 +1,13 @@
-import mainDonkey         from "../assets/guides/main_donkey.png";
-import pirateDonkey       from "../assets/guides/pirate_donkey.png";
-import corporateDonkey    from "../assets/guides/corporate_donkey.png";
-import groovyDonkey       from "../assets/guides/groovy_donkey.png";
-import drillSergeantDonkey from "../assets/guides/drill_sergeant_donkey.png";
-import fluidDonkey        from "../assets/guides/fluid_donkey.png";
-import detectiveDonkey    from "../assets/guides/detective_donkey.png";
-import dramaDonkey        from "../assets/guides/drama_donkey.png";
-import mobsterDonkey      from "../assets/guides/mobster_donkey.png";
-import doomsdayDonkey     from "../assets/guides/doomsday_donkey.png";
+import mainDonkey         from "../assets/guides/main_donkey.webp";
+import pirateDonkey       from "../assets/guides/pirate_donkey.webp";
+import corporateDonkey    from "../assets/guides/corporate_donkey.webp";
+import groovyDonkey       from "../assets/guides/groovy_donkey.webp";
+import drillSergeantDonkey from "../assets/guides/drill_sergeant_donkey.webp";
+import fluidDonkey        from "../assets/guides/fluid_donkey.webp";
+import detectiveDonkey    from "../assets/guides/detective_donkey.webp";
+import dramaDonkey        from "../assets/guides/drama_donkey.webp";
+import mobsterDonkey      from "../assets/guides/mobster_donkey.webp";
+import doomsdayDonkey     from "../assets/guides/doomsday_donkey.webp";
 
 // toneId maps to the backend TONE_PRESETS key used in /prompt/stream requests.
 export const DONKEY_GUIDES = [

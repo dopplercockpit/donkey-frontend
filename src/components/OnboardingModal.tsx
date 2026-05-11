@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import "./OnboardingModal.css";
 import { DONKEY_GUIDES } from "../data/donkeyGuides";
-import donkeyLogo from "../assets/mister_donkey_logo.png";
+import donkeyLogo from "../assets/mister_donkey_logo.webp";
 
 const STORAGE_KEY = "md_onboarded";
 

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "compress-images": "node scripts/compress-images.cjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "vite preview"
@@ -24,6 +25,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "sharp": "^0.34.5",
     "vite": "^6.2.0",
     "vite-plugin-pwa": "^1.0.0"
   }
