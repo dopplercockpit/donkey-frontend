@@ -17,14 +17,19 @@ interface HourlyForecastProps {
   tempUnit?: "C" | "F";
 }
 
+function inRange(code: number, min: number, max: number): boolean {
+  return code >= min && code <= max;
+}
+
 function conditionEmoji(code: number | null): string {
-  if (code === null) return "🌡️";
+  if (code == null) return "🌡️";
   if (code === 1000) return "☀️";
-  if (code <= 1009) return "⛅";
-  if (code <= 1147) return "🌫️";
-  if (code <= 1201) return "🌧️";
-  if (code <= 1264) return "❄️";
-  return "⛈️"; // 1273+ thunderstorm
+  if ([1003, 1006, 1009].includes(code)) return "⛅";
+  if ([1030, 1135, 1147].includes(code)) return "🌫️";
+  if ([1063, 1072].includes(code) || inRange(code, 1150, 1201) || inRange(code, 1240, 1246)) return "🌧️";
+  if ([1066, 1069, 1114, 1117].includes(code) || inRange(code, 1204, 1237) || inRange(code, 1249, 1264)) return "❄️";
+  if (code === 1087 || inRange(code, 1273, 1282)) return "⛈️";
+  return "🌡️";
 }
 
 const HourlyForecast: React.FC<HourlyForecastProps> = ({
