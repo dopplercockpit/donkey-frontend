@@ -28,6 +28,19 @@ function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+function looksPostalOnly(value) {
+  const trimmed = value.trim();
+
+  // Numeric-only postal/ZIP codes are globally ambiguous.
+  if (/^\d{3,10}$/.test(trimmed)) return true;
+
+  // Very short alphanumeric postal-like strings without spaces are also risky.
+  // Keep this conservative so normal city names are not blocked.
+  if (/^[a-zA-Z]\d[a-zA-Z]\d[a-zA-Z]\d$/.test(trimmed)) return true;
+
+  return false;
+}
+
 export default function GeoControls({
   geoStatus,
   geoEnabled,
@@ -39,16 +52,36 @@ export default function GeoControls({
   manualLocationError = "",
 }) {
   const [manualQuery, setManualQuery] = useState("");
+  const [manualOpen, setManualOpen] = useState(false);
+  const [localManualError, setLocalManualError] = useState("");
   const statusLabel = useMemo(() => {
     if (geoStatus === "denied") return pick(GEO_DENIED_MESSAGES);
     if (geoStatus === "error") return pick(GEO_ERROR_MESSAGES);
     return STATIC_LABELS[geoStatus] ?? null;
   }, [geoStatus]);
 
+  const shouldShowManualForm =
+    manualOpen ||
+    geoStatus === "denied" ||
+    geoStatus === "error" ||
+    geoStatus === "disabled" ||
+    geoStatus === "unavailable" ||
+    !cityName;
+  const visibleManualError = localManualError || manualLocationError;
+
   const handleManualSubmit = (event) => {
     event.preventDefault();
     const trimmed = manualQuery.trim();
+    setLocalManualError("");
     if (!trimmed || manualLocationLoading) return;
+
+    if (looksPostalOnly(trimmed)) {
+      setLocalManualError(
+        "Postal codes alone are ambiguous. Add city or country, like 'Lyon 69001' or '49880 USA'."
+      );
+      return;
+    }
+
     onManualLocationSubmit?.(trimmed);
   };
 
@@ -78,34 +111,50 @@ export default function GeoControls({
           {geoEnabled ? "Disable location" : "Enable location"}
         </button>
       </div>
-      <form className="manual-location-form" onSubmit={handleManualSubmit}>
-        <span className="manual-location-hint">
-          Blocked GPS? Type a city or ZIP. I&apos;m a donkey, not a psychic.
-        </span>
-        <div className="manual-location-row">
-          <input
-            type="text"
-            className="manual-location-input"
-            value={manualQuery}
-            onChange={(event) => setManualQuery(event.target.value)}
-            placeholder="City, ZIP, or postal code"
-            aria-label="Manual location"
-            disabled={manualLocationLoading}
-          />
-          <button
-            type="submit"
-            className="manual-location-submit"
-            disabled={manualLocationLoading || manualQuery.trim().length < 2}
-          >
-            {manualLocationLoading ? "Finding..." : "Use location"}
-          </button>
-        </div>
-        {manualLocationError && (
-          <div className="manual-location-error" role="alert">
-            {manualLocationError}
+      <button
+        type="button"
+        className="geo-btn geo-btn--manual"
+        onClick={() => setManualOpen((open) => !open)}
+        aria-expanded={shouldShowManualForm}
+      >
+        {shouldShowManualForm ? "Hide manual location" : "Change location manually"}
+      </button>
+      {shouldShowManualForm && (
+        <form className="manual-location-form" onSubmit={handleManualSubmit}>
+          <span className="manual-location-hint">
+            Blocked GPS? Use city + country/region. Postal codes alone can send me to Narnia.
+          </span>
+          <div className="manual-location-row">
+            <input
+              type="text"
+              className="manual-location-input"
+              value={manualQuery}
+              onChange={(event) => {
+                setManualQuery(event.target.value);
+                if (localManualError) setLocalManualError("");
+              }}
+              placeholder="Lyon 69001, France"
+              aria-label="Manual location"
+              disabled={manualLocationLoading}
+            />
+            <button
+              type="submit"
+              className="manual-location-submit"
+              disabled={manualLocationLoading || manualQuery.trim().length < 2}
+            >
+              {manualLocationLoading ? "Finding..." : "Use location"}
+            </button>
           </div>
-        )}
-      </form>
+          <span className="manual-location-examples">
+            Try: Lyon 69001 · 69004 France · Detroit MI · 49880 USA
+          </span>
+          {visibleManualError && (
+            <div className="manual-location-error" role="alert">
+              {visibleManualError}
+            </div>
+          )}
+        </form>
+      )}
     </div>
   );
 }
