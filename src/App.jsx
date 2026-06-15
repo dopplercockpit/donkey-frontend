@@ -581,6 +581,18 @@ function App() {
     quota_status: currentWeatherResult?.metadata?.quota_status,
     fallback_used: currentWeatherResult?.metadata?.fallback_used,
   };
+  const hasStructuredWeather = Boolean(currentWeatherResult?.weather);
+  const shouldShowInitialWeatherSkeleton = autoWeatherLoading && !hasStructuredWeather;
+
+  // TODO: Remove after confirming production no longer shows a stale weather skeleton.
+  useEffect(() => {
+    console.log("[Mister Donkey weather state]", {
+      autoWeatherLoading,
+      hasStructuredWeather,
+      shouldShowInitialWeatherSkeleton,
+      appVersion: APP_VERSION,
+    });
+  }, [autoWeatherLoading, hasStructuredWeather, shouldShowInitialWeatherSkeleton]);
 
   const handleFavoriteSelect = useCallback((city) => {
     setCityName(city.name);
@@ -667,7 +679,11 @@ function App() {
       </div>
 
       <div className="main-content">
-        <div className="app-container">
+        <div
+          className="app-container"
+          data-weather-loaded={hasStructuredWeather ? "true" : "false"}
+          data-auto-loading={autoWeatherLoading ? "true" : "false"}
+        >
           {!isOnline && (
             <div className="offline-banner" role="status" aria-live="polite">
               🐴 The donkey lost signal — check your connection
@@ -731,7 +747,7 @@ function App() {
           )}
 
           {/* Auto-loaded weather result */}
-          {autoWeatherLoading && !currentWeatherResult && (
+          {shouldShowInitialWeatherSkeleton && (
             <SkeletonWeatherCard label="Loading automatic weather report" />
           )}
 
