@@ -73,6 +73,23 @@ function readTodayRoastUsage() {
   return Number.isFinite(count) ? count : 0;
 }
 
+function sameLocation(a, b) {
+  if (!a || !b) return false;
+  return Number(a.lat).toFixed(4) === Number(b.lat).toFixed(4) &&
+    Number(a.lon).toFixed(4) === Number(b.lon).toFixed(4);
+}
+
+function autoFetchKey(loc, city, tone, sid) {
+  if (!loc || !city || !sid) return "";
+  return [
+    String(city).trim().toLowerCase(),
+    Number(loc.lat).toFixed(4),
+    Number(loc.lon).toFixed(4),
+    tone || "default",
+    sid,
+  ].join("|");
+}
+
 // WeatherAPI condition codes: https://www.weatherapi.com/docs/weather_conditions.json
 const WEATHER_THEMES = {
   // Clear / sunny
@@ -232,6 +249,7 @@ function App() {
   const [currentWeatherResult, setCurrentWeatherResult] = useState(null);
   const [autoWeatherLoading, setAutoWeatherLoading] = useState(false);
   const lastAutoMessageKeyRef = useRef(null);
+  const lastAutoFetchKeyRef = useRef(null);
   const [dailyRoastUsage, setDailyRoastUsage] = useState(readTodayRoastUsage);
   const lastCountedRoastRef = useRef(null);
 
@@ -348,15 +366,20 @@ function App() {
     }
 
     if (result?.metadata?.location) {
-      setCityName(result.metadata.location);
+      setCityName((prev) => (
+        prev === result.metadata.location ? prev : result.metadata.location
+      ));
     }
 
     const coords = result?.metadata?.coords;
     if (coords?.lat != null && coords?.lon != null) {
-      setLocation({
+      const nextLocation = {
         lat: coords.lat,
         lon: coords.lon,
-      });
+      };
+      setLocation((prev) => (
+        sameLocation(prev, nextLocation) ? prev : nextLocation
+      ));
     }
   }, []);
 
@@ -498,6 +521,9 @@ function App() {
 
   useEffect(() => {
     if ((geoStatus === "granted" || geoStatus === "manual") && location && cityName && sessionId) {
+      const nextAutoFetchKey = autoFetchKey(location, cityName, selectedTone, sessionId);
+      if (lastAutoFetchKeyRef.current === nextAutoFetchKey) return;
+      lastAutoFetchKeyRef.current = nextAutoFetchKey;
       fetchAutoWeather(location, cityName, selectedTone, sessionId);
     }
   }, [geoStatus, location, cityName, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -705,7 +731,7 @@ function App() {
           )}
 
           {/* Auto-loaded weather result */}
-          {autoWeatherLoading && (
+          {autoWeatherLoading && !currentWeatherResult && (
             <SkeletonWeatherCard label="Loading automatic weather report" />
           )}
 
