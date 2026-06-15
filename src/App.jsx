@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import PromptForm from './PromptForm';
 import GeoControls from './GeoControls';
 import SupportCard from './SupportCard';
@@ -11,6 +11,7 @@ import OnboardingModal, { shouldShowOnboarding } from './components/OnboardingMo
 import SkeletonWeatherCard from './components/SkeletonWeatherCard';
 import UnitToggle from './components/UnitToggle';
 import VitaminDCard from './VitaminDCard';
+import ShareButton from './ShareButton';
 import { getDonkeyGuideById } from './data/donkeyGuides';
 import { getDonkeyMoodDebug } from './utils/weatherMood';
 import { APP_VERSION } from './version';
@@ -35,6 +36,10 @@ const KOFI_BEER_URL =
   import.meta.env.VITE_KOFI_BEER_URL || "https://ko-fi.com/weatherjackass";
 const MANUAL_LOCATION_STORAGE_KEY = "mister_donkey_manual_location";
 const TEMP_UNIT_STORAGE_KEY = "mister_donkey_temp_unit";
+const DAILY_ROAST_NUDGE_LIMIT = Number.parseInt(
+  import.meta.env.VITE_DAILY_ROAST_NUDGE_LIMIT || "3",
+  10
+) || 3;
 
 function inferDefaultTempUnit() {
   const saved = localStorage.getItem(TEMP_UNIT_STORAGE_KEY);
@@ -56,6 +61,16 @@ function inferDefaultTempUnit() {
   });
 
   return usesFahrenheit ? "F" : "C";
+}
+
+function todayRoastUsageKey() {
+  return `donkey_roast_usage_${new Date().toISOString().slice(0, 10)}`;
+}
+
+function readTodayRoastUsage() {
+  const raw = localStorage.getItem(todayRoastUsageKey());
+  const count = Number.parseInt(raw || "0", 10);
+  return Number.isFinite(count) ? count : 0;
 }
 
 // WeatherAPI condition codes: https://www.weatherapi.com/docs/weather_conditions.json
@@ -217,6 +232,8 @@ function App() {
   const [currentWeatherResult, setCurrentWeatherResult] = useState(null);
   const [autoWeatherLoading, setAutoWeatherLoading] = useState(false);
   const lastAutoMessageKeyRef = useRef(null);
+  const [dailyRoastUsage, setDailyRoastUsage] = useState(readTodayRoastUsage);
+  const lastCountedRoastRef = useRef(null);
 
   // PromptForm loading signal — lifted here only to drive the logo animation
   const [promptLoading, setPromptLoading] = useState(false);
@@ -311,6 +328,23 @@ function App() {
   const handleWeatherData = useCallback((result) => {
     if (result?.weather) {
       setCurrentWeatherResult(result);
+    }
+
+    if (result?.metadata?.llm_called === true) {
+      const roastKey = [
+        todayRoastUsageKey(),
+        result?.metadata?.timestamp,
+        result?.metadata?.location,
+        result?.metadata?.tone,
+        result?.text_summary || result?.summary,
+      ].join("|");
+
+      if (lastCountedRoastRef.current !== roastKey) {
+        lastCountedRoastRef.current = roastKey;
+        const nextCount = readTodayRoastUsage() + 1;
+        localStorage.setItem(todayRoastUsageKey(), String(nextCount));
+        setDailyRoastUsage(nextCount);
+      }
     }
 
     if (result?.metadata?.location) {
@@ -453,14 +487,14 @@ function App() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setCurrentWeatherResult(data);
+      handleWeatherData(data);
       appendAutoWeatherMessage(data, city, tone);
     } catch (err) {
       console.error("🐴 Auto weather fetch failed:", err);
     } finally {
       setAutoWeatherLoading(false);
     }
-  }, [appendAutoWeatherMessage, tempUnit]);
+  }, [appendAutoWeatherMessage, handleWeatherData, tempUnit]);
 
   useEffect(() => {
     if ((geoStatus === "granted" || geoStatus === "manual") && location && cityName && sessionId) {
@@ -487,9 +521,40 @@ function App() {
   const donkeyMoodDebug = currentWeatherResult ? getDonkeyMoodDebug(currentWeatherResult) : null;
   const donkeyMoodKey = donkeyMoodDebug?.moodKey || 'default';
   const donkeyMoodImage = DONKEY_MOOD_IMAGES[donkeyMoodKey] || DONKEY_MOOD_IMAGES.default || donkeyLogo;
+  const latestShareText = useMemo(() => {
+    const latestAssistant = [...conversationHistory]
+      .reverse()
+      .find((msg) => msg.role === "assistant" && !msg.streaming && msg.content?.trim());
+
+    return (
+      currentWeatherResult?.text_summary ||
+      currentWeatherResult?.summary ||
+      latestAssistant?.content ||
+      ""
+    );
+  }, [conversationHistory, currentWeatherResult]);
   const moodDebugEnabled =
     import.meta.env.VITE_DEBUG_MOOD === "true" ||
     localStorage.getItem("md_debug_mood") === "true";
+  const backendCoolingDown =
+    currentWeatherResult?.metadata?.quota_status === "limited" ||
+    currentWeatherResult?.metadata?.fallback_used === true;
+  const roastNudgeActive = dailyRoastUsage >= DAILY_ROAST_NUDGE_LIMIT;
+  const supportProminent = backendCoolingDown || roastNudgeActive;
+  const supportSubtitle = backendCoolingDown
+    ? "Fresh roasts are cooling down. Coffee helps keep the jackass operational."
+    : roastNudgeActive
+      ? "I'm out here burning brain cells for your forecast. Buy Donkey a coffee if you want the insults to keep flowing."
+      : "Fuel the forecast.";
+  const supportAnalyticsContext = {
+    session_id: sessionId || undefined,
+    tone: selectedTone,
+    location: cityName ? { name: cityName } : undefined,
+    daily_roast_usage: dailyRoastUsage,
+    nudge_active: supportProminent,
+    quota_status: currentWeatherResult?.metadata?.quota_status,
+    fallback_used: currentWeatherResult?.metadata?.fallback_used,
+  };
 
   const handleFavoriteSelect = useCallback((city) => {
     setCityName(city.name);
@@ -568,8 +633,10 @@ function App() {
           image={kofiCoffeeDonkey}
           href={KOFI_COFFEE_URL}
           title="Buy Donkey a Coffee"
-          subtitle="Fuel the forecast."
+          subtitle={supportSubtitle}
           ariaLabel="Buy Donkey a Coffee on Ko-Fi"
+          prominent={supportProminent}
+          analyticsContext={supportAnalyticsContext}
         />
       </div>
 
@@ -651,6 +718,17 @@ function App() {
             <WeatherIndicators weather={currentWeatherResult.weather} tempUnit={tempUnit} />
           )}
 
+          {(latestShareText || cityName) && (
+            <div className="share-row">
+              <ShareButton
+                textSummary={latestShareText}
+                locationLabel={cityName}
+                tone={selectedTone}
+                sessionId={sessionId}
+              />
+            </div>
+          )}
+
           <PromptForm
             location={location}
             cityName={cityName}
@@ -684,8 +762,10 @@ function App() {
             image={kofiCoffeeDonkey}
             href={KOFI_COFFEE_URL}
             title="Buy Donkey a Coffee"
-            subtitle="Fuel the forecast."
+            subtitle={supportSubtitle}
             ariaLabel="Buy Donkey a Coffee on Ko-Fi"
+            prominent={supportProminent}
+            analyticsContext={supportAnalyticsContext}
           />
           <SupportCard
             variant="beer"
@@ -694,6 +774,8 @@ function App() {
             title="Buy Donkey a Beer"
             subtitle="For after the storm."
             ariaLabel="Buy Donkey a Beer on Ko-Fi"
+            prominent={backendCoolingDown}
+            analyticsContext={supportAnalyticsContext}
           />
         </div>
 
@@ -711,6 +793,8 @@ function App() {
           title="Buy Donkey a Beer"
           subtitle="For after the storm."
           ariaLabel="Buy Donkey a Beer on Ko-Fi"
+          prominent={backendCoolingDown}
+          analyticsContext={supportAnalyticsContext}
         />
       </div>
     </div>

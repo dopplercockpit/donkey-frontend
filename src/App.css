@@ -298,6 +298,18 @@ body {
   box-shadow: 0 6px 18px rgba(232, 131, 74, 0.22);
 }
 
+.support-card--prominent {
+  border-color: var(--accent-secondary);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent-secondary) 55%, transparent),
+    0 10px 26px rgba(232, 131, 74, 0.24);
+}
+
+.support-card--prominent .support-card-subtitle {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
 .support-card-img {
   display: block;
   width: 100%;
@@ -497,6 +509,12 @@ body {
   font-weight: 700;
   line-height: 1.4;
   box-shadow: var(--shadow-card);
+}
+
+.share-row {
+  display: flex;
+  justify-content: center;
+  margin: 0.75rem 0 var(--space-sm);
 }
 
 /* === Mobile === */

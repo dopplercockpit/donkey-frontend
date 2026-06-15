@@ -25,6 +25,17 @@
   color: var(--accent-primary);
 }
 
+.share-btn--success {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.share-btn--error,
+.share-btn--manual {
+  border-color: var(--danger, #ef4444);
+  color: var(--danger, #ef4444);
+}
+
 .share-icon {
   width: 15px;
   height: 15px;
@@ -53,4 +64,38 @@
   pointer-events: none;
   animation: share-toast-in 0.15s ease forwards;
   box-shadow: var(--shadow-sm);
+}
+
+.share-toast--error {
+  border-color: var(--danger, #ef4444);
+  color: var(--danger, #ef4444);
+}
+
+.share-manual {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  top: calc(100% + 6px);
+  width: min(82vw, 320px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding: 0.45rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.share-manual textarea {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 0.35rem;
+  resize: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  line-height: 1.4;
+  padding: 0.45rem;
 }
